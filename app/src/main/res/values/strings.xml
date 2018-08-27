@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MeteorRemote</string>
+    <string name="ipEditHint">Server IPv4 address...</string>
+    <string name="portHint">Server port...</string>
+    <string name="connectButtonText">Connect</string>
+    <string name="bundleerror">No bundle was received</string>
+    <string name="invalidIPv4">Invalid IP address</string>
+    <string name="invalidPort">Invalid port</string>
+    <string name="admin">SU@ILIY700:PLAY_SONG</string>
+    <string name="client">CLIENT:QUEUE_SONG</string>
+
+</resources>

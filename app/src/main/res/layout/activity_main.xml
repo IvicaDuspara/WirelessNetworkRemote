@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/matrixDark"
+
+  >
+
+    <EditText
+        android:id="@+id/ipEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="@color/matrixGreenLight"
+        android:hint="@string/ipEditHint"
+        android:inputType="none"
+        android:singleLine="true"
+        android:textColor="@color/matrixDarkGreen"
+        android:textColorHint="@color/matrixDarkGreen"
+        android:textSize="24sp"
+        tools:backgroundTint="@color/matrixGreenLight"
+        tools:textColorHighlight="@color/matrixGreenLight"
+        tools:textCursorDrawable="@color/matrixGreenLight" />
+
+    <EditText
+        android:id="@+id/portEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:backgroundTint="@color/matrixGreenLight"
+        android:hint="@string/portHint"
+        android:inputType="number"
+        android:textColor="@color/matrixDarkGreen"
+        android:textColorHint="@color/matrixDarkGreen"
+        android:textSize="24sp"
+        tools:backgroundTint="@color/matrixGreenLight"
+        tools:textColorHighlight="@color/matrixGreenLight"
+        tools:textCursorDrawable="@color/matrixGreenLight" />
+
+    <Button
+        android:id="@+id/connectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="140dp"
+        android:text="@string/connectButtonText"
+        android:textColor="@color/matrixDarkGreen"
+
+        />
+
+</RelativeLayout>
