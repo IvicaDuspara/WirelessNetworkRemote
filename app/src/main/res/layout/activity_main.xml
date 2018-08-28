@@ -8,7 +8,7 @@
   >
 
     <EditText
-        android:id="@+id/ipEditText"
+        android:id="@+id/et_main_ipaddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -25,7 +25,7 @@
         tools:textCursorDrawable="@color/matrixGreenLight" />
 
     <EditText
-        android:id="@+id/portEditText"
+        android:id="@+id/et_main_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -41,14 +41,13 @@
         tools:textCursorDrawable="@color/matrixGreenLight" />
 
     <Button
-        android:id="@+id/connectButton"
+        android:id="@+id/btn_main_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="140dp"
         android:text="@string/connectButtonText"
         android:textColor="@color/matrixDarkGreen"
-
         />
 
 </RelativeLayout>

@@ -7,6 +7,5 @@
     <string name="invalidIPv4">Invalid IP address</string>
     <string name="invalidPort">Invalid port</string>
     <string name="admin">SU@ILIY700:PLAY_SONG</string>
-    <string name="client">CLIENT:QUEUE_SONG</string>
 
 </resources>
