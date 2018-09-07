@@ -8,4 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="MatrixListItem">
+        <item name="android:background">@color/matrixBlack</item>
+        <item name="android:textColor">@color/matrixDarkGreen</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+
 </resources>

@@ -7,5 +7,8 @@
     <string name="invalidIPv4">Invalid IP address</string>
     <string name="invalidPort">Invalid port</string>
     <string name="admin">SU@ILIY700:PLAY_SONG</string>
+    <string name="string_nowplaying">Now playing:</string>
+    <string name="string_queued">Queued</string>
+    <string name="string_queued_confirmation_toast">queued!</string>
 
 </resources>

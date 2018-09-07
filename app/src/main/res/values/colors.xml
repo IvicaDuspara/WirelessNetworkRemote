@@ -3,7 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="matrixDark">#0d0208</color>
+    <color name="matrixBlack">#0d0208</color>
     <color name="matrixDarkGreen">#008F11</color>
-    <color name="matrixGreenLight">#00ff41</color>
+    <color name="matrixLightGreen">#00ff41</color>
 </resources>

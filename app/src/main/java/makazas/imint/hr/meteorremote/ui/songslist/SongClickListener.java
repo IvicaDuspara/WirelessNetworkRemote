@@ -1,4 +1,4 @@
-package makazas.imint.hr.meteorremote;
+package makazas.imint.hr.meteorremote.ui.songslist;
 
 import android.view.View;
 

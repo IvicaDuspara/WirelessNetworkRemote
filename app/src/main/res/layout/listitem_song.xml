@@ -4,13 +4,15 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/song"
+        android:id="@+id/listitem_song"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/matrixDark"
-        android:textAlignment="center"
+        android:layout_height="35dp"
+        style="@style/MatrixListItem"
+
+        android:text="Matrix fuckin sucks oh yeah it does baby"
+
+        android:layout_centerVertical="true"
         android:textAllCaps="false"
-        android:textColor="@color/matrixDarkGreen"
-        android:textSize="24sp" />
+        android:textSize="20sp" />
 
 </RelativeLayout>

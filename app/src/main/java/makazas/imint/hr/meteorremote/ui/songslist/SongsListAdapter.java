@@ -14,26 +14,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import makazas.imint.hr.meteorremote.R;
-import makazas.imint.hr.meteorremote.SongClickListener;
 
-/**
- * Adapter class used for {@code RecyclerView}.<br>
- *
- */
 public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.SongViewHolder>{
-    /**
-     * {@code List} which is used to populate {@code RecyclerView}
-     */
+
     private List<String> songs;
 
     private SongClickListener songClickListener;
 
-    /**
-     * Constructs a new {@code SongsListAdapter} with given parameter.
-     *
-     * @throws NullPointerException
-     *         if <code>listitem_song</code> is <code>null</code>
-     */
     public SongsListAdapter(SongClickListener listener) {
         this.songs = new ArrayList<>();
         this.songClickListener = listener;
@@ -57,7 +44,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder viewHolder, int i) {
-        viewHolder.tvTitle.setText(songs.get(i));
+        viewHolder.tvSongTitle.setText(songs.get(i));
     }
 
     @Override
@@ -72,21 +59,9 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
      */
     public class SongViewHolder extends RecyclerView.ViewHolder {
 
-        /**
-         * {@code TextView} used for displaying a tvTitle of a song
-         */
-        @BindView(R.id.song)
-        public TextView tvTitle;
+        @BindView(R.id.listitem_song)
+        public TextView tvSongTitle;
 
-        /**
-         * Constructs a new {@code SongViewHolder} item with given parameter.
-         *
-         * @param itemView
-         *        {@code View} which holds a {@code TextView} which will be used for displaying song titles.
-         *
-         * @throws  NullPointerException
-         *          if <code>itemView</code> is <code>null</code>
-         */
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -94,7 +69,9 @@ public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.Song
 
         @OnClick
         public void onSongClick(){
-            songClickListener.onClick(getSong(getAdapterPosition()));
+            if(songClickListener != null) {
+                songClickListener.onClick(getSong(getAdapterPosition()));
+            }
         }
     }
 }

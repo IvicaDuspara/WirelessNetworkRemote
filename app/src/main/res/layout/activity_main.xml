@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/matrixDark"
+    android:background="@color/matrixBlack"
 
   >
 
@@ -13,16 +13,16 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
-        android:backgroundTint="@color/matrixGreenLight"
+        android:backgroundTint="@color/matrixLightGreen"
         android:hint="@string/ipEditHint"
         android:inputType="none"
         android:singleLine="true"
         android:textColor="@color/matrixDarkGreen"
         android:textColorHint="@color/matrixDarkGreen"
         android:textSize="24sp"
-        tools:backgroundTint="@color/matrixGreenLight"
-        tools:textColorHighlight="@color/matrixGreenLight"
-        tools:textCursorDrawable="@color/matrixGreenLight" />
+        tools:backgroundTint="@color/matrixLightGreen"
+        tools:textColorHighlight="@color/matrixLightGreen"
+        tools:textCursorDrawable="@color/matrixLightGreen" />
 
     <EditText
         android:id="@+id/et_main_port"
@@ -30,15 +30,15 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
-        android:backgroundTint="@color/matrixGreenLight"
+        android:backgroundTint="@color/matrixLightGreen"
         android:hint="@string/portHint"
         android:inputType="number"
         android:textColor="@color/matrixDarkGreen"
         android:textColorHint="@color/matrixDarkGreen"
         android:textSize="24sp"
-        tools:backgroundTint="@color/matrixGreenLight"
-        tools:textColorHighlight="@color/matrixGreenLight"
-        tools:textCursorDrawable="@color/matrixGreenLight" />
+        tools:backgroundTint="@color/matrixLightGreen"
+        tools:textColorHighlight="@color/matrixLightGreen"
+        tools:textCursorDrawable="@color/matrixLightGreen" />
 
     <Button
         android:id="@+id/btn_main_connect"

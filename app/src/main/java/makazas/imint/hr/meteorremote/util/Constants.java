@@ -1,15 +1,11 @@
-package makazas.imint.hr.meteorremote;
+package makazas.imint.hr.meteorremote.util;
 import android.os.Bundle;
 
 public class Constants {
 
     public static final String LOG_TAG = "lepinja";
 
-    public static final String CLIENT_CLOSED = "CLIENT:DISCONNECT";
-
-    public static final String BROADCAST_END = "SERVER:BROADCAST_ENDED";
-
-    public static final String CLIENT_TOKEN = "CLIENT:QUEUE_SONG";
+    public static final String SERVER_RESPONSE_SEPARATOR = "\n";
 
     /**
      * Used as a key for {@link Bundle}

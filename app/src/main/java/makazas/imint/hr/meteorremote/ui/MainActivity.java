@@ -9,11 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.net.InetAddress;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import makazas.imint.hr.meteorremote.Constants;
+import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
 
