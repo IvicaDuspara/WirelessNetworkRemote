@@ -3,9 +3,15 @@ package makazas.imint.hr.meteorremote;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 
 /**
@@ -35,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Button connectButton = findViewById(R.id.connectButton);
         connectButton.setOnClickListener(l -> attemptConnection());
+
     }
 
     /**
@@ -46,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
      *
      */
     private void attemptConnection() {
+        String macAddress ="";
+        try {
+            macAddress = getMACAddres();
+        }catch(SocketException ex) {
+            ex.printStackTrace();
+        }
         EditText address = findViewById(R.id.ipEditText);
         EditText port = findViewById(R.id.portEditText);
         if(address.getText().toString().equals("")) {
@@ -56,11 +69,31 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,"Invalid port", Toast.LENGTH_LONG).show();
             return;
         }
+        if(macAddress==null) {
+            Toast.makeText(this,"No MAC address", Toast.LENGTH_LONG).show();
+        }
         Intent listIntent = new Intent(MainActivity.this, ListedSongsActivity.class);
         Bundle b = new Bundle();
         b.putString(IP_ADDRESS,address.getText().toString());
         b.putInt(PORT,Integer.valueOf(port.getText().toString()));
+        b.putString("MAC",macAddress);
         listIntent.putExtras(b);
         startActivity(listIntent);
+    }
+
+    private String getMACAddres() throws SocketException{
+        Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+        while(en.hasMoreElements()){
+            NetworkInterface ni = en.nextElement();
+            byte[] polje = ni.getHardwareAddress();
+            if(polje != null && ni.toString().contains("192.168")) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < polje.length; i++) {
+                    sb.append(String.format("%02X%s", polje[i], (i < polje.length - 1) ? "-" : ""));
+                }
+                return sb.toString();
+            }
+        }
+        return null;
     }
 }

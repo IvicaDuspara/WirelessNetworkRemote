@@ -1,5 +1,6 @@
 package makazas.imint.hr.meteorremote;
 
+import android.icu.util.LocaleData;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 
 public class ListedSongsActivity extends AppCompatActivity {
@@ -63,6 +66,8 @@ public class ListedSongsActivity extends AppCompatActivity {
      * Wrapper writer for <code>clientSocket</code>'s <code>outputStream</code>
      */
     private BufferedWriter clientSocketWriter;
+
+    private String MACAddress;
 
     /**
      * Adapter class used for {@code RecyclerView}.<br>
@@ -146,7 +151,7 @@ public class ListedSongsActivity extends AppCompatActivity {
         /**
          * Signals an end of a broadcast
          */
-        private static final String BROADCAST_END = "SERVER:BROADCAST_ENDED";
+        private static final String BROADCAST_END = "SERVER_BROADCAST_ENDED";
 
         /**
          * Connects to a server, reads song names and updates {@link RecyclerView RecyclerView}.<br>
@@ -186,17 +191,20 @@ public class ListedSongsActivity extends AppCompatActivity {
                 String str;
                 while(!(str = br.readLine()).equals(BROADCAST_END)) {
                     ListedSongsActivity.this.recyclerList.add(str);
-                    String finalStr = str;
-                    //ListedSongsActivity.this.runOnUiThread(() -> addItem(finalStr));
-                    //Log.d("kree","ADDED:" + str);
+                    Log.d("KREE",str);
                 }
                 ListedSongsActivity.this.runOnUiThread(() -> ListedSongsActivity.this.mAdapter.notifyDataSetChanged());
 
             } catch (IOException e) {
-                TextView tv = findViewById(R.id.LSAdispaly);
-                tv.setText(e.getMessage());
+                e.printStackTrace();
+
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -214,16 +222,16 @@ public class ListedSongsActivity extends AppCompatActivity {
         mAdapter = new SimpleRecyclerAdapter(recyclerList);
         mRecyclerView.setAdapter(mAdapter);
         startSocket();
-        mAdapter.notifyDataSetChanged();
-        Log.d("kree","#####Well this has happened#####");
+        Log.d("KREE","Ich bin hier");
+
+        //mAdapter.notifyDataSetChanged();
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 String s = recyclerList.get(position);
                 try {
-                    clientSocketWriter.write(getString(R.string.client));
+                    clientSocketWriter.write(getString(R.string.admin));
                     clientSocketWriter.newLine();
-                    clientSocketWriter.flush();
                     clientSocketWriter.write(s);
                     clientSocketWriter.newLine();
                     clientSocketWriter.flush();
@@ -236,27 +244,27 @@ public class ListedSongsActivity extends AppCompatActivity {
 
             @Override
             public void onLongClick(View view, int position) {
-
+                String s = recyclerList.get(position);
+                try {
+                    clientSocketWriter.write(getString(R.string.client));
+                    clientSocketWriter.newLine();
+                    clientSocketWriter.write(MACAddress);
+                    clientSocketWriter.newLine();
+                    clientSocketWriter.write(s);
+                    clientSocketWriter.newLine();
+                    clientSocketWriter.flush();
+                }catch(IOException ex) {
+                    TextView tv = findViewById(R.id.LSAdispaly);
+                    tv.setText(ex.getMessage());
+                }
             }
         }));
+        Button b = findViewById(R.id.returnButton);
+        b.setOnClickListener(l -> {
+            mAdapter.notifyDataSetChanged();
+        });
+        Log.d("KREE","gotovsan");
 
-
-    }
-
-
-    /**
-     * Adds <code>item</code> to {@link #recyclerList} and notifies {@link #mAdapter} of a change.<br>
-     * This method will throw an exception if <code>item</code> is <code>null</code>
-     *
-     * @param item
-     *        {@code String} added to {@link #recyclerList}
-     *
-     * @throws NullPointerException
-     *         if <code>item</code> is <code>null</code>
-     */
-    private void addItem(String item) {
-        recyclerList.add(item);
-        mAdapter.notifyDataSetChanged();
     }
 
 
@@ -273,8 +281,11 @@ public class ListedSongsActivity extends AppCompatActivity {
         if(getIntent() != null && getIntent().getExtras() != null) {
             String ipaddr = getIntent().getStringExtra(MainActivity.IP_ADDRESS);
             int portNumber = getIntent().getIntExtra(MainActivity.PORT,0);
+            MACAddress = getIntent().getStringExtra("MAC");
             NetworkTask nt = new NetworkTask();
-            nt.execute(ipaddr,Integer.toString(portNumber));
+
+                nt.execute(ipaddr,Integer.toString(portNumber));
+
         }
         else {
             TextView tv = findViewById(R.id.LSAdispaly);
