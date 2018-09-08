@@ -9,7 +9,17 @@ import makazas.imint.hr.meteorremote.model.ServerCode;
 import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.util.Constants;
 
-public class ServerResponseListenerThread extends ObservableServerResponseListenerThread {
+/**
+ * Observable thread that actively listens for a {@link ServerResponse}.
+ * If no {@link BufferedReader} is attached, no server responses can be read.
+ * Only after attaching the reader via {@link ServerResponseListenerThread#setBufferedReader(BufferedReader)}
+ * can the thread actually read server responses.
+ *
+ * When the thread receives a server response, it first connects all lines from the {@link BufferedReader}
+ * and creates a new {@link ServerResponse}. It then notifies all attached{@link ServerResponseChangedObserver}s
+ * of the received server response.
+ */
+public class ServerResponseListenerThread extends ObservableThread {
 
     private BufferedReader bufferedReader;
 
@@ -19,7 +29,7 @@ public class ServerResponseListenerThread extends ObservableServerResponseListen
         setRunning(true);
     }
 
-    public void setRunning(boolean running) {
+    private void setRunning(boolean running) {
         isRunning = running;
     }
 
@@ -44,6 +54,12 @@ public class ServerResponseListenerThread extends ObservableServerResponseListen
         }
     }
 
+    /**
+     * @return      connected lines from {@link ServerResponseListenerThread#bufferedReader} separated by newline
+     *              up until {@link ServerCode#SERVER_BROADCAST_ENDED} is read. There is no trailing newline.
+     *
+     * @throws IOException
+     */
     private String connectAllLinesFromBufferedReader() throws IOException {
         StringBuilder everything = new StringBuilder();
         String line;

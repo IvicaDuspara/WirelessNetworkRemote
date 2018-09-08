@@ -1,10 +1,14 @@
 package makazas.imint.hr.meteorremote.ui.songslist;
 
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -16,11 +20,11 @@ import butterknife.ButterKnife;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.presentation.SongsListPresenter;
-import makazas.imint.hr.meteorremote.ui.MainActivity;
 import makazas.imint.hr.meteorremote.util.StringFormattingUtil;
 import makazas.imint.hr.meteorremote.util.ToastUtil;
 
 // TODO: 08-Sep-18 add progress bar while loading songs
+// TODO: 08-Sep-18 disconnect from server on back-pressed
 
 public class SongsListActivity extends AppCompatActivity implements SongsListContract.View {
 
@@ -59,7 +63,7 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
             String ipAddress = getIntent().getStringExtra(Constants.IP_ADDRESS);
             int portNumber = getIntent().getIntExtra(Constants.PORT, 0);
 
-            presenter.initSongsFromServer(ipAddress, Integer.toString(portNumber));
+            presenter.connectToServer(ipAddress, Integer.toString(portNumber));
         }
     }
 
@@ -79,7 +83,17 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
 
     @Override
     public void setNowPlayingSong(String songName) {
-        runOnUiThread(() -> tvNowPlayingSong.setText(songName));
+        SpannableString str;
+        if(songName == null || songName.isEmpty()){
+            //nothing is playing so the view can display nothing.
+            str = new SpannableString("");
+        } else {
+            //using spannable string allows bolding one part of the string and not the other.
+            String nowPlayingLabel = getStringResource(R.string.string_nowplaying);
+            str = new SpannableString(nowPlayingLabel + ": " + songName);
+            str.setSpan(new StyleSpan(Typeface.BOLD), 0, nowPlayingLabel.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        runOnUiThread(() -> tvNowPlayingSong.setText(str));
     }
 
     @Override
@@ -137,26 +151,4 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     private String getStringResource(int resId){
         return getResources().getString(resId);
     }
-
-    // TODO: 27-Aug-18 actually figure out what to do on back pressed
-    /*@Override
-    public void onBackPressed() {
-        if (clientSocketWriter != null) {
-            try {
-                clientSocketWriter.write(Constants.CLIENT_CLOSED);
-                clientSocketWriter.newLine();
-                clientSocketWriter.flush();
-                clientSocketWriter.close();
-            } catch (IOException ex) {
-                Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
-        if (clientSocket != null) {
-            try {
-                clientSocket.close();
-            } catch (IOException ex) {
-                Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
-    }*/
 }

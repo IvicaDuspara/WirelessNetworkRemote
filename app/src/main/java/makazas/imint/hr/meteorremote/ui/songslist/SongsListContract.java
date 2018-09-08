@@ -9,14 +9,12 @@ public interface SongsListContract {
         void setNowPlayingSong(String songName);
         void setQueuedSong(String songName);
         void setQueuedSongPosition(int position);
-
         void showSuccessfulQueuedSongToast(String songName);
-
         void clearQueuedSongView();
     }
 
     interface Presenter {
-        void initSongsFromServer(String ipAddress, String portNumber);
+        void connectToServer(String ipAddress, String portNumber);
         void sendSongToServer(String songName);
     }
 }

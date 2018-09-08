@@ -18,14 +18,6 @@ import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
 import makazas.imint.hr.meteorremote.util.NetworkUtil;
 import makazas.imint.hr.meteorremote.util.SharedPrefsUtil;
 
-/**
- * Main activity which allows user to enter IPv4 address and a port of a server
- * which is broadcasting. An attempt of a connection will be done once user
- * enters IP address and port.
- *
- * @author Ivica Duspara
- * @version 1.0
- */
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.et_main_ipaddress)
@@ -46,13 +38,6 @@ public class MainActivity extends AppCompatActivity {
         initializeEditTextsFromSharedPrefs();
     }
 
-    /**
-     * Launches {@link SongsListActivity} if user has entered both IP address and port number.
-     * Note that this method does not check validity of entered data only if data is entered.<br>
-     * If user did not enter any data, a {@code Toast} will be shown as a warning.<br>
-     * <p>
-     * For validation of IP Address and port number, please see {@link SongsListActivity#startSocket() startSocket()}
-     */
     @OnClick(R.id.btn_main_connect)
     public void attemptConnection() {
         String ipAddress = etIpAddress.getText().toString();
