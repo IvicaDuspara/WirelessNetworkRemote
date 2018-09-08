@@ -1,4 +1,4 @@
-package makazas.imint.hr.meteorremote;
+package makazas.imint.hr.meteorremote.multithreading;
 
 import makazas.imint.hr.meteorremote.model.ServerResponse;
 

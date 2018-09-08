@@ -1,10 +1,10 @@
 package makazas.imint.hr.meteorremote.ui;
 
-// TODO: 28-Aug-18 refactor activity_main.xml
-
 import android.content.Intent;
+import android.os.NetworkOnMainThreadException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,6 +14,8 @@ import butterknife.ButterKnife;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
+import makazas.imint.hr.meteorremote.util.NetworkUtil;
+import makazas.imint.hr.meteorremote.util.SharedPrefsUtil;
 
 /**
  * Main activity which allows user to enter IPv4 address and a port of a server
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        initializeEditTextsFromSharedPrefs();
+
         btnConnect.setOnClickListener(l -> attemptConnection());
     }
 
@@ -51,16 +55,19 @@ public class MainActivity extends AppCompatActivity {
      * For validation of IP Address and port number, please see {@link SongsListActivity#startSocket() startSocket()}
      */
     private void attemptConnection() {
-        // TODO: 27-Aug-18 handle invalid IP and port input with InetAddress.getByName(address);
+        String ipAddress = etIpAddress.getText().toString();
+        String port = etPort.getText().toString();
 
-        if (etIpAddress.getText().toString().equals("")) {
-            Toast.makeText(this, "Invalid IP address", Toast.LENGTH_LONG).show();
+        if (!NetworkUtil.isValidIpAddress(ipAddress)) {
+            etIpAddress.setError(getStringResource(R.string.string_ipaddress_error));
             return;
         }
-        if (etPort.getText().toString().equals("")) {
-            Toast.makeText(this, "Invalid port", Toast.LENGTH_LONG).show();
+        if (!NetworkUtil.isValidPort(port)) {
+            etPort.setError(getStringResource(R.string.string_port_error));
             return;
         }
+        saveInputToSharedPrefs();
+
         Intent listIntent = new Intent(MainActivity.this, SongsListActivity.class);
         Bundle b = new Bundle();
         b.putString(Constants.IP_ADDRESS, etIpAddress.getText().toString());
@@ -68,5 +75,19 @@ public class MainActivity extends AppCompatActivity {
         listIntent.putExtras(b);
 
         startActivity(listIntent);
+    }
+
+    private void saveInputToSharedPrefs(){
+        SharedPrefsUtil.save(this, Constants.IP_ADDRESS, etIpAddress.getText().toString());
+        SharedPrefsUtil.save(this, Constants.PORT, etPort.getText().toString());
+    }
+
+    private void initializeEditTextsFromSharedPrefs() {
+        etIpAddress.setText(SharedPrefsUtil.get(this, Constants.IP_ADDRESS, ""));
+        etPort.setText(SharedPrefsUtil.get(this, Constants.PORT, ""));
+    }
+
+    private String getStringResource(int resId){
+        return getResources().getString(resId);
     }
 }

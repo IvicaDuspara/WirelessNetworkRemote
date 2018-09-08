@@ -1,10 +1,9 @@
-package makazas.imint.hr.meteorremote;
+package makazas.imint.hr.meteorremote.multithreading;
 
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 import makazas.imint.hr.meteorremote.model.ServerCode;
 import makazas.imint.hr.meteorremote.model.ServerResponse;

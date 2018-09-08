@@ -3,7 +3,6 @@ package makazas.imint.hr.meteorremote.presentation;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,16 +16,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
-import makazas.imint.hr.meteorremote.ServerResponseChangedObserver;
+import makazas.imint.hr.meteorremote.multithreading.ServerResponseChangedObserver;
 import makazas.imint.hr.meteorremote.model.ClientCode;
 import makazas.imint.hr.meteorremote.model.ServerCode;
 import makazas.imint.hr.meteorremote.model.ServerResponse;
-import makazas.imint.hr.meteorremote.ServerResponseListenerThread;
+import makazas.imint.hr.meteorremote.multithreading.ServerResponseListenerThread;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
-import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.util.NetworkUtil;
 
 public class SongsListPresenter implements SongsListContract.Presenter, ServerResponseChangedObserver {
@@ -185,7 +182,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                     //when a new song is added to queue by another client.
                     allQueuedSongs.addLast(serverResponse.getQueuedSongName());
                 } else {
-                    //when another user swaps his song.
+                    //when another client swaps his song.
                     allQueuedSongs.set(serverResponse.getPositionInQueue(), serverResponse.getQueuedSongName());
                 }
                 break;

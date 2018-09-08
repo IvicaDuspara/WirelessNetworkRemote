@@ -1,4 +1,4 @@
-package makazas.imint.hr.meteorremote;
+package makazas.imint.hr.meteorremote.multithreading;
 
 import java.lang.Thread;
 import java.util.ArrayList;
