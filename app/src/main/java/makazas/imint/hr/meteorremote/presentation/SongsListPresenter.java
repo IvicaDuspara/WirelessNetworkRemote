@@ -125,7 +125,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
 
                 sendMacAddressToServer();
                 view.updateListWithSongs(receivedSongs);
-                startListeningForServerResponse();
+                startListeningForServerResponses();
             } catch(IOException e){
                 e.printStackTrace();
             }
@@ -146,7 +146,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         }
     }
 
-    private void startListeningForServerResponse() {
+    private void startListeningForServerResponses() {
         listenerThread = new ServerResponseListenerThread();
         listenerThread.setBufferedReader(clientSocketReader);
         listenerThread.setDaemon(true);

@@ -3,14 +3,13 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/matrixDarkGrey</item>
+        <item name="colorPrimaryDark">@color/matrixBlack</item>
+        <item name="colorAccent">@color/matrixLightGreen</item>
     </style>
 
     <style name="MatrixListItem">
-        <item name="android:background">@color/matrixBlack</item>
-        <item name="android:textColor">@color/matrixDarkGreen</item>
+        <item name="android:textColor">@color/matrixLightGreen</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">marquee</item>
     </style>

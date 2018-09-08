@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -18,8 +17,10 @@ import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.presentation.SongsListPresenter;
 import makazas.imint.hr.meteorremote.ui.MainActivity;
+import makazas.imint.hr.meteorremote.util.StringFormattingUtil;
 import makazas.imint.hr.meteorremote.util.ToastUtil;
 
+// TODO: 08-Sep-18 add progress bar while loading songs
 
 public class SongsListActivity extends AppCompatActivity implements SongsListContract.View {
 
@@ -53,15 +54,6 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         startSocket();
     }
 
-    /**
-     * Connects {@link SongsListPresenter#clientSocket clientSocket} to a server. Server's IP address and port are passed as a {@code Bundle} in a intent,
-     * bundled in {@link MainActivity MainActivity}.<br>
-     * <p>
-     * If this method is called without a {@code Bundle} or this activity is started without a {@code Intent} a message will be displayed<br><br>
-     * <p>
-     * <b>Note:</b> this method does not check validity of IPv4 address or validity of a port. That job is done when constructing a {@link java.net.SocketAddress SocketAddress} object.
-     * See {@link SongsListPresenter#initSongsFromServer(String, String)}.
-     */
     private void startSocket() {
         if (getIntent() != null && getIntent().getExtras() != null) {
             String ipAddress = getIntent().getStringExtra(Constants.IP_ADDRESS);
@@ -99,7 +91,7 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     public void setQueuedSongPosition(int position) {
         String toDisplay = String.format(
                 Locale.getDefault(),
-                "%s(%d):", getResources().getString(R.string.string_queued), position
+                "%s(%s):", getResources().getString(R.string.string_queued), StringFormattingUtil.attachOrdinalSuffix(position + 1)
         );
         runOnUiThread(() -> tvQueuedSongPosition.setText(toDisplay));
     }
@@ -120,8 +112,13 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
 
     private void initRecyclerView() {
         rvSongs.setHasFixedSize(true);
-        rvSongs.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+
+        DividerItemDecoration decor = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        decor.setDrawable(getDrawable(R.drawable.listitem_divider));
+        rvSongs.addItemDecoration(decor);
+
         rvSongs.setLayoutManager(new LinearLayoutManager(this));
+
         rvSongs.setAdapter(songsAdapter);
     }
 

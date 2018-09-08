@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/listitem_song"
         android:layout_width="match_parent"
-        android:layout_height="35dp"
+        android:layout_height="50dp"
         style="@style/MatrixListItem"
 
         android:text="Matrix fuckin sucks oh yeah it does baby"
 
-        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
         android:textAllCaps="false"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
-</RelativeLayout>
+
+</LinearLayout>

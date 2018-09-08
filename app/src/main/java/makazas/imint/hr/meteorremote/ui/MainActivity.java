@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
@@ -43,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         initializeEditTextsFromSharedPrefs();
-
-        btnConnect.setOnClickListener(l -> attemptConnection());
     }
 
     /**
@@ -54,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
      * <p>
      * For validation of IP Address and port number, please see {@link SongsListActivity#startSocket() startSocket()}
      */
-    private void attemptConnection() {
+    @OnClick(R.id.btn_main_connect)
+    public void attemptConnection() {
         String ipAddress = etIpAddress.getText().toString();
         String port = etPort.getText().toString();
 
