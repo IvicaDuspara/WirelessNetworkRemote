@@ -29,6 +29,8 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     private BufferedWriter clientSocketWriter;
     private BufferedReader clientSocketReader;
 
+    private ServerResponseListenerThread listenerThread;
+
     private int clientSongIndex;
     private String clientQueuedSong;
     private LinkedList<String> allQueuedSongs;
@@ -69,7 +71,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     private void startListeningForServerResponses() {
-        ServerResponseListenerThread listenerThread = new ServerResponseListenerThread();
+        listenerThread = new ServerResponseListenerThread();
         listenerThread.setBufferedReader(clientSocketReader);
         listenerThread.setDaemon(true);
         listenerThread.attach(this);
@@ -111,40 +113,40 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
-    public void update(ServerResponse serverResponse) {
-        switch (serverResponse.getServerCode()) {
+    public void update(ServerResponse response) {
+        switch (response.getServerCode()) {
             //when server sends all available songs
             case SERVER_SONG_LIST:
-                view.updateListWithSongs(serverResponse.getAllSongs());
+                view.updateListWithSongs(response.getAllSongs());
                 break;
 
             //runs on first start when we receive the initial queue list.
             case SERVER_QUEUE_LIST:
-                allQueuedSongs.addAll(serverResponse.getQueuedSongs());
+                allQueuedSongs.addAll(response.getQueuedSongs());
                 break;
 
             //runs when app restarts and the user still had a queued song in the list.
             case SERVER_MY_QUEUED_SONG:
-                clientQueuedSong = serverResponse.getQueuedSong();
-                clientSongIndex = serverResponse.getPositionInQueue();
+                clientQueuedSong = response.getQueuedSong();
+                clientSongIndex = response.getPositionInQueue();
 
-                view.setNowPlayingSong(serverResponse.getNowPlayingSong());
+                view.setNowPlayingSong(response.getNowPlayingSong());
                 view.setQueuedSong(clientQueuedSong);
                 view.setQueuedSongPosition(clientSongIndex);
                 break;
 
             //runs when anyone queues a song.
             case SERVER_ENQUEUED:
-                if (serverResponse.getPositionInQueue() == clientSongIndex) {
+                if (response.getPositionInQueue() == clientSongIndex) {
                     //when client swaps his song
                     view.setQueuedSong(clientQueuedSong);
                     view.setQueuedSongPosition(clientSongIndex);
-                } else if (serverResponse.getPositionInQueue() == allQueuedSongs.size()) {
+                } else if (response.getPositionInQueue() == allQueuedSongs.size()) {
                     //when a new song is added to queue by another client.
-                    allQueuedSongs.addLast(serverResponse.getQueuedSong());
+                    allQueuedSongs.addLast(response.getQueuedSong());
                 } else {
                     //when another client swaps his song.
-                    allQueuedSongs.set(serverResponse.getPositionInQueue(), serverResponse.getQueuedSong());
+                    allQueuedSongs.set(response.getPositionInQueue(), response.getQueuedSong());
                 }
                 break;
 
@@ -170,9 +172,8 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
 
             //when a client manually plays a song on the server
             case SERVER_NOW_PLAYING:
-                view.setNowPlayingSong(serverResponse.getNowPlayingSong());
+                view.setNowPlayingSong(response.getNowPlayingSong());
                 break;
-
         }
     }
 }
