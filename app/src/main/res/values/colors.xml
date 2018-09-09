@@ -7,4 +7,6 @@
     <color name="matrixDarkGreen">#008F11</color>
     <color name="matrixLightGreen">#00ff41</color>
     <color name="matrixDarkGrey">#131414</color>
+    <color name="white">#ffffff</color>
+    <color name="grey">#565656</color>
 </resources>

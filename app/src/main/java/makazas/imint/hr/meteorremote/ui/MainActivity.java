@@ -2,11 +2,15 @@ package makazas.imint.hr.meteorremote.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,12 +34,16 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.btn_main_connect)
     Button btnConnect;
 
+    @BindView(R.id.pb_main_connecting)
+    ProgressBar pbConnecting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        setProgressBarVisible(false);
         initializeEditTextsFromSharedPrefs();
     }
 
@@ -67,13 +75,43 @@ public class MainActivity extends AppCompatActivity {
         etPort.setText(SharedPrefsUtil.get(this, Constants.PORT, ""));
     }
 
-    private String getStringResource(int resId) {
-        return getResources().getString(resId);
+    private String getStringResource(int stringId) {
+        return getResources().getString(stringId);
+    }
+
+    private int getColorResource(int colorId){
+        return getResources().getColor(colorId);
+    }
+
+    private void setProgressBarVisible(boolean isVisible){
+        pbConnecting.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+    }
+
+    private void setButtonEnabled(boolean isEnabled){
+        btnConnect.setClickable(isEnabled);
+        btnConnect.setEnabled(isEnabled);
+        btnConnect.setBackgroundColor(
+                isEnabled ? getColorResource(R.color.matrixLightGreen) : getColorResource(R.color.grey)
+        );
     }
 
     @SuppressLint("StaticFieldLeak")
     private void tryInitializingSocket(String ipAddress, String port){
         new AsyncTask<String, String, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                runOnUiThread(() -> setProgressBarVisible(true));
+                runOnUiThread(() -> setButtonEnabled(false));
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                runOnUiThread(() -> setProgressBarVisible(false));
+                runOnUiThread(() -> setButtonEnabled(true));
+            }
+
             @Override
             protected Void doInBackground(String... strings) {
                 if(SocketSingleton.getInstance().initializeSocket(ipAddress, port)){
@@ -81,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     saveInputToSharedPrefs();
                 } else {
                     runOnUiThread(
-                            () -> ToastUtil.showShortToastWithMessage(MainActivity.this, getStringResource(R.string.string_cannotconnect))
+                            () -> ToastUtil.showLongToastWithMessage(MainActivity.this, getStringResource(R.string.string_cannotconnect))
                     );
                 }
                 return null;

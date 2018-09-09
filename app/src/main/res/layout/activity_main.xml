@@ -1,51 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/matrixBlack">
 
     <EditText
         android:id="@+id/et_main_ipaddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="@color/matrixLightGreen"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/et_main_port"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintVertical_bias="0.15"
+
         android:hint="@string/ipEditHint"
+
         android:inputType="phone"
         android:singleLine="true"
-        android:textColor="@color/matrixDarkGreen"
-        android:textColorHint="@color/matrixDarkGreen"
+        android:gravity="center_horizontal"
+
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey"
+        android:backgroundTint="@color/matrixLightGreen"
         android:textSize="24sp"
-        tools:backgroundTint="@color/matrixLightGreen"
-        tools:textColorHighlight="@color/matrixLightGreen"
-        tools:textCursorDrawable="@color/matrixLightGreen" />
+        />
 
     <EditText
         android:id="@+id/et_main_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:backgroundTint="@color/matrixLightGreen"
+
+        app:layout_constraintTop_toBottomOf="@id/et_main_ipaddress"
+        app:layout_constraintBottom_toTopOf="@id/btn_main_connect"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
         android:hint="@string/portHint"
+
         android:inputType="number"
-        android:textColor="@color/matrixDarkGreen"
-        android:textColorHint="@color/matrixDarkGreen"
+        android:gravity="center_horizontal"
+
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey"
+        android:backgroundTint="@color/matrixLightGreen"
         android:textSize="24sp"
-        tools:backgroundTint="@color/matrixLightGreen"
-        tools:textColorHighlight="@color/matrixLightGreen"
-        tools:textCursorDrawable="@color/matrixLightGreen" />
+        />
 
     <Button
         android:id="@+id/btn_main_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="140dp"
+        android:layout_marginTop="20dp"
+
+        app:layout_constraintTop_toBottomOf="@id/et_main_port"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+
         android:text="@string/connectButtonText"
-        android:textColor="@color/matrixDarkGreen"
+        android:textColor="@color/matrixBlack"
+        android:background="@color/matrixLightGreen"
         />
 
-</RelativeLayout>
+    <ProgressBar
+        android:id="@+id/pb_main_connecting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toBottomOf="@id/btn_main_connect"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintVertical_bias="0.15"
+
+        style="?android:progressBarStyleLarge"
+        />
+
+</android.support.constraint.ConstraintLayout>
