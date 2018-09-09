@@ -23,13 +23,9 @@ public class ServerResponseListenerThread extends ObservableThread {
 
     private BufferedReader bufferedReader;
 
-    private boolean isRunning;
+    private volatile boolean isRunning;
 
-    public ServerResponseListenerThread(){
-        setRunning(true);
-    }
-
-    private void setRunning(boolean running) {
+    public void setRunning(boolean running) {
         isRunning = running;
     }
 
@@ -39,6 +35,7 @@ public class ServerResponseListenerThread extends ObservableThread {
 
     @Override
     public void run(){
+        setRunning(true);
         while(isRunning){
             if(bufferedReader != null) {
                 try {
@@ -52,11 +49,12 @@ public class ServerResponseListenerThread extends ObservableThread {
                 }
             }
         }
+        Log.d(Constants.LOG_TAG, "listening thread stopped");
     }
 
     /**
-     * @return      connected lines from {@link ServerResponseListenerThread#bufferedReader} separated by newline
-     *              up until {@link ServerCode#SERVER_BROADCAST_ENDED} is read. There is no trailing newline.
+     * @return  connected lines from {@link ServerResponseListenerThread#bufferedReader} separated by newline
+     *          up until {@link ServerCode#SERVER_BROADCAST_ENDED} is read. There is no trailing newline.
      *
      * @throws IOException
      */

@@ -2,7 +2,11 @@ package makazas.imint.hr.meteorremote.util;
 
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,5 +79,28 @@ public class NetworkUtil {
 
         //port numbers in range [0, 1023] are reserved.
         return portNum >= 1024 && portNum <= 65535;
+    }
+
+    public static void logIfClosed(Socket socket, BufferedReader reader, BufferedWriter writer){
+        boolean writerClosed = false;
+        boolean readerClosed = false;
+
+        try{
+            writer.flush();
+        }catch(IOException e){
+            writerClosed = true;
+        }
+
+        try{
+            readerClosed = !reader.ready();
+        }catch(IOException e){
+            readerClosed = true;
+        }
+
+        Log.d(Constants.LOG_TAG,
+                "clientSocket is closed: " + socket.isClosed() +
+                        ", writer is closed: " + writerClosed +
+                        ", reader is closed: " + readerClosed
+        );
     }
 }

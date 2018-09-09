@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -56,6 +57,12 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         initRecyclerView();
 
         startSocket();
+    }
+
+    @Override
+    protected void onDestroy() {
+        presenter.disconnectFromServer();
+        super.onDestroy();
     }
 
     private void startSocket() {

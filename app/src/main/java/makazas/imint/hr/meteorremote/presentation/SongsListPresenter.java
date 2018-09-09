@@ -2,6 +2,7 @@ package makazas.imint.hr.meteorremote.presentation;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,9 +18,11 @@ import makazas.imint.hr.meteorremote.model.ClientCode;
 import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseListenerThread;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
+import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.util.NetworkUtil;
 
 // TODO: 08-Sep-18 documentation
+// TODO: 08-Sep-18 close socket, writer, reader and listening thread when back is pressed! Do these in ondestroy, since they are called when back is pressed.
 
 public class SongsListPresenter implements SongsListContract.Presenter, ServerResponseChangedObserver {
 
@@ -101,6 +104,45 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         }.execute(song);
     }
 
+    @Override
+    @SuppressLint("StaticFieldLeak")
+    public void disconnectFromServer() {
+        new AsyncTask<String, String, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                //notify server of disconnect
+                if (clientSocketWriter != null) {
+                    try {
+                        clientSocketWriter.write(ClientCode.CLIENT_DISCONNECT.toString());
+                        clientSocketWriter.newLine();
+                        clientSocketWriter.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //close the socket and the connected reader and writer
+                if(clientSocket != null){
+                    try {
+                        clientSocket.close();
+                        clientSocketReader.close();
+                        clientSocketWriter.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //stops the listener thread
+                listenerThread.setRunning(false);
+
+                //logging to make sure all is closed
+                NetworkUtil.logIfClosed(clientSocket, clientSocketReader, clientSocketWriter);
+
+                return null;
+            }
+        }.execute();
+    }
+
     private void addOrReplaceClientSong(String songName) {
         if (clientQueuedSong == null) {
             allQueuedSongs.addLast(songName);
@@ -177,3 +219,4 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         }
     }
 }
+
