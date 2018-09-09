@@ -14,7 +14,7 @@ public interface SongsListContract {
     }
 
     interface Presenter {
-        void connectToServer(String ipAddress, String portNumber);
+        void connectToServer();
         void sendSongToServer(String songName);
         void disconnectFromServer();
     }

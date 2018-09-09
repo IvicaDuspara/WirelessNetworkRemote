@@ -1,22 +1,23 @@
 package makazas.imint.hr.meteorremote.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.NetworkOnMainThreadException;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import makazas.imint.hr.meteorremote.networking.SocketSingleton;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
 import makazas.imint.hr.meteorremote.util.NetworkUtil;
 import makazas.imint.hr.meteorremote.util.SharedPrefsUtil;
+import makazas.imint.hr.meteorremote.util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,22 +48,16 @@ public class MainActivity extends AppCompatActivity {
             etIpAddress.setError(getStringResource(R.string.string_ipaddress_error));
             return;
         }
+
         if (!NetworkUtil.isValidPort(port)) {
             etPort.setError(getStringResource(R.string.string_port_error));
             return;
         }
-        saveInputToSharedPrefs();
 
-        Intent listIntent = new Intent(MainActivity.this, SongsListActivity.class);
-        Bundle b = new Bundle();
-        b.putString(Constants.IP_ADDRESS, etIpAddress.getText().toString());
-        b.putInt(Constants.PORT, Integer.valueOf(etPort.getText().toString()));
-        listIntent.putExtras(b);
-
-        startActivity(listIntent);
+        tryInitializingSocket(ipAddress, port);
     }
 
-    private void saveInputToSharedPrefs(){
+    private void saveInputToSharedPrefs() {
         SharedPrefsUtil.save(this, Constants.IP_ADDRESS, etIpAddress.getText().toString());
         SharedPrefsUtil.save(this, Constants.PORT, etPort.getText().toString());
     }
@@ -72,7 +67,25 @@ public class MainActivity extends AppCompatActivity {
         etPort.setText(SharedPrefsUtil.get(this, Constants.PORT, ""));
     }
 
-    private String getStringResource(int resId){
+    private String getStringResource(int resId) {
         return getResources().getString(resId);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void tryInitializingSocket(String ipAddress, String port){
+        new AsyncTask<String, String, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                if(SocketSingleton.getInstance().initializeSocket(ipAddress, port)){
+                    startActivity(new Intent(MainActivity.this, SongsListActivity.class));
+                    saveInputToSharedPrefs();
+                } else {
+                    runOnUiThread(
+                            () -> ToastUtil.showShortToastWithMessage(MainActivity.this, getStringResource(R.string.string_cannotconnect))
+                    );
+                }
+                return null;
+            }
+        }.execute(ipAddress, port);
     }
 }

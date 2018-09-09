@@ -2,27 +2,24 @@ package makazas.imint.hr.meteorremote.presentation;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 
+import makazas.imint.hr.meteorremote.networking.SocketSingleton;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseChangedObserver;
 import makazas.imint.hr.meteorremote.model.ClientCode;
 import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseListenerThread;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
-import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.util.NetworkUtil;
 
 // TODO: 08-Sep-18 documentation
-// TODO: 08-Sep-18 close socket, writer, reader and listening thread when back is pressed! Do these in ondestroy, since they are called when back is pressed.
 
 public class SongsListPresenter implements SongsListContract.Presenter, ServerResponseChangedObserver {
 
@@ -46,12 +43,12 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
 
     @Override
     @SuppressLint("StaticFieldLeak")
-    public void connectToServer(String ipAddress, String portNumber) {
+    public void connectToServer() {
         new AsyncTask<String, String, Void>() {
             @Override
             protected Void doInBackground(String... strings) {
                 try {
-                    clientSocket = new Socket(InetAddress.getByName(ipAddress), Integer.parseInt(portNumber));
+                    clientSocket = SocketSingleton.getInstance().getSocket();
                     clientSocketReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     clientSocketWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
@@ -62,7 +59,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                 }
                 return null;
             }
-        }.execute(ipAddress, portNumber);
+        }.execute();
     }
 
     private void sendMacAddressToServer() throws IOException {
@@ -121,10 +118,10 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                     }
                 }
 
-                //close the socket and the connected reader and writer
+                //closes socket and connected writer/reader.
                 if(clientSocket != null){
                     try {
-                        clientSocket.close();
+                        SocketSingleton.getInstance().closeSocket();
                         clientSocketReader.close();
                         clientSocketWriter.close();
                     } catch (IOException e) {

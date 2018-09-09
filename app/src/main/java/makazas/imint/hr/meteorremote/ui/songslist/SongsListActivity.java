@@ -61,17 +61,19 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
 
     @Override
     protected void onDestroy() {
+        Log.d(Constants.LOG_TAG, "in ondestroy");
         presenter.disconnectFromServer();
         super.onDestroy();
     }
 
     private void startSocket() {
-        if (getIntent() != null && getIntent().getExtras() != null) {
+       /* if (getIntent() != null && getIntent().getExtras() != null) {
             String ipAddress = getIntent().getStringExtra(Constants.IP_ADDRESS);
             int portNumber = getIntent().getIntExtra(Constants.PORT, 0);
 
             presenter.connectToServer(ipAddress, Integer.toString(portNumber));
-        }
+        }*/
+       presenter.connectToServer();
     }
 
     private SongClickListener getSongClickListener() {
