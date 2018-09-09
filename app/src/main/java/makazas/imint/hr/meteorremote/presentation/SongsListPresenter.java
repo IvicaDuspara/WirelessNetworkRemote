@@ -118,7 +118,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                     }
                 }
 
-                //closes socket and connected writer/reader.
+                //close socket and connected writer/reader.
                 if(clientSocket != null){
                     try {
                         SocketSingleton.getInstance().closeSocket();

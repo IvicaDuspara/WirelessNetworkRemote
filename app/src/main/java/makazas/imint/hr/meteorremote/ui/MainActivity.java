@@ -115,8 +115,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(String... strings) {
                 if(SocketSingleton.getInstance().initializeSocket(ipAddress, port)){
-                    startActivity(new Intent(MainActivity.this, SongsListActivity.class));
+                    //only save input to prefs if it's correct
                     saveInputToSharedPrefs();
+                    startActivity(new Intent(MainActivity.this, SongsListActivity.class));
                 } else {
                     runOnUiThread(
                             () -> ToastUtil.showLongToastWithMessage(MainActivity.this, getStringResource(R.string.string_cannotconnect))
