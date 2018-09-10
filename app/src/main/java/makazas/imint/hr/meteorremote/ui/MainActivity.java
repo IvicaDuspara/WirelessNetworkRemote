@@ -2,11 +2,9 @@ package makazas.imint.hr.meteorremote.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,36 +63,6 @@ public class MainActivity extends AppCompatActivity {
         tryInitializingSocket(ipAddress, port);
     }
 
-    private void saveInputToSharedPrefs() {
-        SharedPrefsUtil.save(this, Constants.IP_ADDRESS, etIpAddress.getText().toString());
-        SharedPrefsUtil.save(this, Constants.PORT, etPort.getText().toString());
-    }
-
-    private void initializeEditTextsFromSharedPrefs() {
-        etIpAddress.setText(SharedPrefsUtil.get(this, Constants.IP_ADDRESS, ""));
-        etPort.setText(SharedPrefsUtil.get(this, Constants.PORT, ""));
-    }
-
-    private String getStringResource(int stringId) {
-        return getResources().getString(stringId);
-    }
-
-    private int getColorResource(int colorId){
-        return getResources().getColor(colorId);
-    }
-
-    private void setProgressBarVisible(boolean isVisible){
-        pbConnecting.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-    }
-
-    private void setButtonEnabled(boolean isEnabled){
-        btnConnect.setClickable(isEnabled);
-        btnConnect.setEnabled(isEnabled);
-        btnConnect.setBackgroundColor(
-                isEnabled ? getColorResource(R.color.matrixLightGreen) : getColorResource(R.color.grey)
-        );
-    }
-
     @SuppressLint("StaticFieldLeak")
     private void tryInitializingSocket(String ipAddress, String port){
         new AsyncTask<String, String, Void>() {
@@ -114,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected Void doInBackground(String... strings) {
-                if(SocketSingleton.getInstance().initializeSocket(ipAddress, port)){
+                if(SocketSingleton.getInstance().initializeSocket(strings[0], strings[1])){
                     //only save input to prefs if it's correct
                     saveInputToSharedPrefs();
                     startActivity(new Intent(MainActivity.this, SongsListActivity.class));
@@ -126,5 +94,35 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
         }.execute(ipAddress, port);
+    }
+
+    private void setProgressBarVisible(boolean isVisible){
+        pbConnecting.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+    }
+
+    private void setButtonEnabled(boolean isEnabled){
+        btnConnect.setClickable(isEnabled);
+        btnConnect.setEnabled(isEnabled);
+        btnConnect.setBackgroundColor(
+                isEnabled ? getColorResource(R.color.matrixLightGreen) : getColorResource(R.color.grey)
+        );
+    }
+
+    private void saveInputToSharedPrefs() {
+        SharedPrefsUtil.save(this, Constants.IP_ADDRESS, etIpAddress.getText().toString());
+        SharedPrefsUtil.save(this, Constants.PORT, etPort.getText().toString());
+    }
+
+    private void initializeEditTextsFromSharedPrefs() {
+        etIpAddress.setText(SharedPrefsUtil.get(this, Constants.IP_ADDRESS, ""));
+        etPort.setText(SharedPrefsUtil.get(this, Constants.PORT, ""));
+    }
+
+    private String getStringResource(int stringId) {
+        return getResources().getString(stringId);
+    }
+
+    private int getColorResource(int colorId){
+        return getResources().getColor(colorId);
     }
 }

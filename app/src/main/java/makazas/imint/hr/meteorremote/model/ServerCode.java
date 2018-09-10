@@ -43,7 +43,6 @@ public enum ServerCode {
      */
     SERVER_MY_QUEUED_SONG,
 
-    //sent when someone manually plays a song on the server
     /**
      * Sent when the server sends a client the song that is currently playing.
      * After this code, data is sent in this order(separated by newline):<br>
@@ -52,7 +51,6 @@ public enum ServerCode {
      */
     SERVER_NOW_PLAYING,
 
-    //sent before the whole server available song list.
     /**
      * First thing the server sends to client after client connects.
      * After this code, data is sent in this order(separated by newline):<br>

@@ -30,9 +30,8 @@ public class ServerResponse {
                 addAllInformationLinesToList(queuedSongs, information, 1);
                 break;
             case SERVER_MY_QUEUED_SONG:
-                nowPlayingSong = information[1];
-                queuedSong = information[2];
-                positionInQueue = Integer.parseInt(information[3]);
+                queuedSong = information[1];
+                positionInQueue = Integer.parseInt(information[2]);
                 break;
             case SERVER_ENQUEUED:
                 queuedSong = information[1];

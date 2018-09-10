@@ -10,13 +10,13 @@ import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.util.Constants;
 
 /**
- * Observable thread that actively listens for a {@link ServerResponse}.
- * If no {@link BufferedReader} is attached, no server responses can be read.
+ * Observable thread that actively listens for a {@link ServerResponse}.<br>
+ * If no {@link BufferedReader} is attached, no server responses can be read.<br>
  * Only after attaching the reader via {@link ServerResponseListenerThread#setBufferedReader(BufferedReader)}
- * can the thread actually read server responses.
+ * can the thread actually read server responses.<br>
  *
- * When the thread receives a server response, it first connects all lines from the {@link BufferedReader}
- * and creates a new {@link ServerResponse}. It then notifies all attached{@link ServerResponseChangedObserver}s
+ * <br>When the thread receives a server response, it first connects all lines from the {@link BufferedReader}
+ * and creates a new {@link ServerResponse}. It then notifies all attached {@link ServerResponseChangedObserver}s
  * of the received server response.
  */
 public class ServerResponseListenerThread extends ObservableThread {

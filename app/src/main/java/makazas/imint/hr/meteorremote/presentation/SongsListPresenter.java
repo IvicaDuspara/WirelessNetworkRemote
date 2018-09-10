@@ -2,6 +2,7 @@ package makazas.imint.hr.meteorremote.presentation;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +18,7 @@ import makazas.imint.hr.meteorremote.model.ClientCode;
 import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseListenerThread;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
+import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.util.NetworkUtil;
 
 // TODO: 08-Sep-18 documentation
@@ -81,7 +83,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     @Override
     @SuppressLint("StaticFieldLeak")
     public void sendSongToServer(String song) {
-        addOrReplaceClientSong(song);
+        setQueuedSongIfNotExists(song);
         new AsyncTask<String, String, Void>() {
             @Override
             protected Void doInBackground(String... strings) {
@@ -101,13 +103,20 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         }.execute(song);
     }
 
+    private void setQueuedSongIfNotExists(String songName) {
+        if (clientQueuedSong == null) {
+            allQueuedSongs.addLast(songName);
+            clientQueuedSong = songName;
+            clientSongIndex = allQueuedSongs.indexOf(clientQueuedSong);
+        }
+    }
+
     @Override
     @SuppressLint("StaticFieldLeak")
     public void disconnectFromServer() {
         new AsyncTask<String, String, Void>() {
             @Override
             protected Void doInBackground(String... strings) {
-                //notify server of disconnect
                 if (clientSocketWriter != null) {
                     try {
                         clientSocketWriter.write(ClientCode.CLIENT_DISCONNECT.toString());
@@ -118,7 +127,6 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                     }
                 }
 
-                //close socket and connected writer/reader.
                 if(clientSocket != null){
                     try {
                         SocketSingleton.getInstance().closeSocket();
@@ -129,10 +137,8 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                     }
                 }
 
-                //stops the listener thread
                 listenerThread.setRunning(false);
 
-                //logging to make sure all is closed
                 NetworkUtil.logIfClosed(clientSocket, clientSocketReader, clientSocketWriter);
 
                 return null;
@@ -140,79 +146,108 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         }.execute();
     }
 
-    private void addOrReplaceClientSong(String songName) {
-        if (clientQueuedSong == null) {
-            allQueuedSongs.addLast(songName);
-            clientQueuedSong = songName;
-            clientSongIndex = allQueuedSongs.indexOf(clientQueuedSong);
-        } else {
-            clientQueuedSong = songName;
-            allQueuedSongs.set(clientSongIndex, songName);
-        }
-    }
-
     @Override
     public void update(ServerResponse response) {
         switch (response.getServerCode()) {
-            //when server sends all available songs
             case SERVER_SONG_LIST:
-                view.updateListWithSongs(response.getAllSongs());
+                handleSongListResponse(response);
                 break;
 
-            //runs on first start when we receive the initial queue list.
             case SERVER_QUEUE_LIST:
-                allQueuedSongs.addAll(response.getQueuedSongs());
+                handleQueueListResponse(response);
                 break;
 
-            //runs when app restarts and the user still had a queued song in the list.
-            case SERVER_MY_QUEUED_SONG:
-                clientQueuedSong = response.getQueuedSong();
-                clientSongIndex = response.getPositionInQueue();
-
-                view.setNowPlayingSong(response.getNowPlayingSong());
-                view.setQueuedSong(clientQueuedSong);
-                view.setQueuedSongPosition(clientSongIndex);
-                break;
-
-            //runs when anyone queues a song.
-            case SERVER_ENQUEUED:
-                if (response.getPositionInQueue() == clientSongIndex) {
-                    //when client swaps his song
-                    view.setQueuedSong(clientQueuedSong);
-                    view.setQueuedSongPosition(clientSongIndex);
-                } else if (response.getPositionInQueue() == allQueuedSongs.size()) {
-                    //when a new song is added to queue by another client.
-                    allQueuedSongs.addLast(response.getQueuedSong());
-                } else {
-                    //when another client swaps his song.
-                    allQueuedSongs.set(response.getPositionInQueue(), response.getQueuedSong());
-                }
-                break;
-
-            //when the queue moves up
-            case SERVER_MOVE_UP:
-                if (clientSongIndex <= -1) {
-                    //user hasn't queued anything yet.
-                    break;
-                }
-
-                clientSongIndex--;
-                if (clientSongIndex <= -1) {
-                    view.setNowPlayingSong(clientQueuedSong);
-                    view.clearQueuedSongView();
-
-                    allQueuedSongs.removeFirst();
-                    clientQueuedSong = null;
-                    clientSongIndex = -1;
-                } else {
-                    view.setQueuedSongPosition(clientSongIndex);
-                }
-                break;
-
-            //when a client manually plays a song on the server
             case SERVER_NOW_PLAYING:
-                view.setNowPlayingSong(response.getNowPlayingSong());
+                handleNowPlayingResponse(response);
                 break;
+
+            case SERVER_MY_QUEUED_SONG:
+                handleMyQueuedSongResponse(response);
+                break;
+
+            case SERVER_ENQUEUED:
+                handleEnqueuedResponse(response);
+                break;
+
+            case SERVER_MOVE_UP:
+                handleMoveUpResponse(response);
+                break;
+        }
+    }
+
+    private void handleSongListResponse(ServerResponse response) {
+        view.updateListWithSongs(response.getAllSongs());
+    }
+
+    private void handleQueueListResponse(ServerResponse response) {
+        allQueuedSongs.addAll(response.getQueuedSongs());
+    }
+
+    private void handleNowPlayingResponse(ServerResponse response) {
+        view.setNowPlayingSong(response.getNowPlayingSong());
+    }
+
+    private void handleMyQueuedSongResponse(ServerResponse response) {
+        clientQueuedSong = response.getQueuedSong();
+        clientSongIndex = response.getPositionInQueue();
+
+        view.setQueuedSong(clientQueuedSong);
+        view.setQueuedSongPosition(clientSongIndex);
+    }
+
+    private void handleEnqueuedResponse(ServerResponse response) {
+        if (response.getPositionInQueue() == clientSongIndex) {
+            //if the currently enqueued song's position equals clients queued song index,
+            //this means he swapped his song.
+
+            clientQueuedSong = response.getQueuedSong();
+            allQueuedSongs.set(clientSongIndex, response.getQueuedSong());
+
+            view.setQueuedSong(clientQueuedSong);
+            view.setQueuedSongPosition(clientSongIndex);
+            view.showSuccessfulQueuedSongToast(clientQueuedSong);
+
+        } else if (response.getPositionInQueue() == allQueuedSongs.size()) {
+            //if the currently enqueued song's position is greater than the size of all queued songs
+            //this means ANOTHER client enqueued a song. therefore we update our list of queued songs.
+
+            allQueuedSongs.addLast(response.getQueuedSong());
+
+        } else {
+            //if the currently enqueued song's position isn't greater than the size of all queued songs
+            //and its index isn't equal to this client's song position, another user swapped his song.
+
+            allQueuedSongs.set(response.getPositionInQueue(), response.getQueuedSong());
+        }
+    }
+
+    private void handleMoveUpResponse(ServerResponse response) {
+        if (clientSongIndex == -1) {
+            //if the client hasn't queued anything yet, his queued song index is -1,
+            //denoting the song doesn't exist in the list of queued songs.
+
+            return;
+        }
+
+        //if it's not -1, this means he has a queued song.
+        //when the queue list moves up, his queued song index reduces by one.
+        clientSongIndex--;
+
+        if (clientSongIndex == -1) {
+            //if his song index is now -1, this means the song has reached the top of the
+            //queue and is now playing.
+
+            view.setNowPlayingSong(clientQueuedSong);
+            view.clearQueuedSongView();
+
+            allQueuedSongs.removeFirst();
+            clientQueuedSong = null;
+            clientSongIndex = -1;
+
+        } else {
+            //if his song index isn't -1, we just update the song's position.
+
+            view.setQueuedSongPosition(clientSongIndex);
         }
     }
 }

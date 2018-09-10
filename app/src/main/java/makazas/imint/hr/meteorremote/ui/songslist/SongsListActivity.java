@@ -24,9 +24,6 @@ import makazas.imint.hr.meteorremote.presentation.SongsListPresenter;
 import makazas.imint.hr.meteorremote.util.StringFormattingUtil;
 import makazas.imint.hr.meteorremote.util.ToastUtil;
 
-// TODO: 08-Sep-18 add progress bar while loading songs
-// TODO: 08-Sep-18 disconnect from server on back-pressed
-
 public class SongsListActivity extends AppCompatActivity implements SongsListContract.View {
 
     private SongsListContract.Presenter presenter;
@@ -92,6 +89,7 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
             str = new SpannableString(nowPlayingLabel + ": " + songName);
             str.setSpan(new StyleSpan(Typeface.BOLD), 0, nowPlayingLabel.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        Log.d(Constants.LOG_TAG, str.toString());
         runOnUiThread(() -> tvNowPlayingSong.setText(str));
     }
 
