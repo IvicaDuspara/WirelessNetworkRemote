@@ -15,7 +15,7 @@
         android:layout_marginTop="30dp"
         android:backgroundTint="@color/matrixGreenLight"
         android:hint="@string/ipEditHint"
-        android:inputType="none"
+        android:inputType="phone"
         android:singleLine="true"
         android:textColor="@color/matrixDarkGreen"
         android:textColorHint="@color/matrixDarkGreen"

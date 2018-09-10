@@ -6,6 +6,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import makazas.imint.hr.meteorremote.listeners.ClickListener;
+
 /**
  * Implementation of RecyclerView.OnItemTouchListener
  */

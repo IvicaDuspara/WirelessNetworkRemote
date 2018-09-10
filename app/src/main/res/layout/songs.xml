@@ -6,11 +6,11 @@
     <TextView
         android:id="@+id/song"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:background="@color/matrixDark"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="@color/matrixDarkGreen"
-        android:textSize="24sp" />
+        android:textSize="22sp" />
 
 </RelativeLayout>

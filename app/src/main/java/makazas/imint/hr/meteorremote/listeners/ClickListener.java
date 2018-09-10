@@ -1,4 +1,4 @@
-package makazas.imint.hr.meteorremote;
+package makazas.imint.hr.meteorremote.listeners;
 
 import android.view.View;
 
@@ -11,22 +11,18 @@ public interface ClickListener {
     /**
      * Called when a click is performed on a item of {@code RecyclerView}
      *
-     * @param view
-     *        {@code RecyclerView} on which a click is performed
+     * @param view {@code RecyclerView} on which a click is performed
      *
-     * @param position
-     *        position of an item which was clicked.
+     * @param position of an item which was clicked.
      */
     void onClick(View view, int position);
 
     /**
      * Called when a long click is performed on a item of {@code RecyclerView}
      *
-     * @param view
-     *        {@code RecyclerView} on which a long click is performed
+     * @param view {@code RecyclerView} on which a long click is performed
      *
-     * @param position
-     *        position of an item which was long clicked.
+     * @param position of an item which was long clicked.
      */
     void onLongClick(View view, int position);
 }

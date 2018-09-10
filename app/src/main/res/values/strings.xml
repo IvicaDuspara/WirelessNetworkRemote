@@ -6,7 +6,7 @@
     <string name="bundleerror">No bundle was received</string>
     <string name="invalidIPv4">Invalid IP address</string>
     <string name="invalidPort">Invalid port</string>
-    <string name="admin">SU@MakaZas:PLAY_SONG</string>
+    <string name="admin">SU_MakaZas_PLAY</string>
     <string name="client">CLIENT_QUEUE</string>
 
 </resources>

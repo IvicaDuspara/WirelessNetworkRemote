@@ -6,30 +6,34 @@
  >
 
 
-    <Button
-        android:id="@+id/returnButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="40dp"
-        android:text="Button" />
-
-
     <TextView
-        android:id="@+id/LSAdispaly"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:id="@+id/nowPlayingText"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="40dp"
-        android:text="" />
+        android:layout_alignParentTop="true"
+        android:text=""
+        android:background="@color/matrixDark"
+        android:textColor="@color/matrixDarkGreen"
+        android:textColorHint="@color/matrixDarkGreen"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="462dp"
+        android:layout_height="457dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@+id/nowPlayingText" />
+
+    <TextView
+        android:id="@+id/nextInQueueText"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_below="@+id/recyclerView"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/matrixDark"
+        android:text=""
+        android:textColor="@color/matrixDarkGreen"
+        android:textColorHint="@color/matrixDarkGreen" />
+
 </RelativeLayout>
