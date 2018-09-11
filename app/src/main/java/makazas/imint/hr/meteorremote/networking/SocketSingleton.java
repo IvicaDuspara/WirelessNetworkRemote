@@ -48,11 +48,8 @@ public class SocketSingleton {
         if(socket == null) {
             try {
                 socket = new Socket(InetAddress.getByName(ipAddress), Integer.parseInt(port));
-            } catch (NetworkOnMainThreadException e) {
-                e.printStackTrace();
-                return false;
             } catch (Exception e) {
-                //any other exception will cause the socket to not be constructed.
+                e.printStackTrace();
                 return false;
             }
         }

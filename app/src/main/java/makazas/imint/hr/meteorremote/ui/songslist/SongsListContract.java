@@ -17,5 +17,9 @@ public interface SongsListContract {
         void connectToServer();
         void sendSongToServer(String songName);
         void disconnectFromServer();
+
+        void displaySongsThatMatchQuery(String query);
+
+        void displayAllSongs();
     }
 }

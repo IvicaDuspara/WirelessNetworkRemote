@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import java.net.InetAddress;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;

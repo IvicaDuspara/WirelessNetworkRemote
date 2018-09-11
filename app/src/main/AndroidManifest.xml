@@ -20,9 +20,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.songslist.SongsListActivity"
+
+        <activity
+            android:name=".ui.songslist.SongsListActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait">
+
+        </activity>
     </application>
 
 </manifest>

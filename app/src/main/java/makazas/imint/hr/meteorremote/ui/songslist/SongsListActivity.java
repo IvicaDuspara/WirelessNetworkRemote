@@ -1,15 +1,21 @@
 package makazas.imint.hr.meteorremote.ui.songslist;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -48,12 +54,62 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         setContentView(R.layout.activity_songs_list);
         ButterKnife.bind(this);
 
+        Log.d(Constants.LOG_TAG, "in oncreate");
+
         presenter = new SongsListPresenter(this);
 
         songsAdapter = new SongsListAdapter(getSongClickListener());
         initRecyclerView();
 
         presenter.connectToServer();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+
+        initSearchView(menu.findItem(R.id.menu_search));
+
+        return true;
+    }
+
+    private void initSearchView(MenuItem menuSearchItem){
+        //define menu item behavior
+        menuSearchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                //when overriding these methods, we must return true so the item expands.
+                //(interface segregation principle, google?)
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                presenter.displayAllSongs();
+                return true;
+            }
+        });
+
+        //define specific searchview attributes
+        SearchView searchView = (SearchView) menuSearchItem.getActionView();
+        searchView.setQueryHint(getStringResource(R.string.string_searchhint));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                //returning true means the overridden listener handled the text submit.
+                //if it returned false, the searchview would execute its default behavior, which
+                //is sending a new intent that starts a searchable activity. this way, no activity gets
+                //started because submitting a search query is done dynamically.
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                presenter.displaySongsThatMatchQuery(query);
+                return true;
+            }
+        });
     }
 
     @Override

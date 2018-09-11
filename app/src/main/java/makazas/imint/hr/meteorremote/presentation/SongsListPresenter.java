@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import makazas.imint.hr.meteorremote.networking.SocketSingleton;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseChangedObserver;
@@ -36,6 +40,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     private int clientSongIndex;
     private String clientQueuedSong;
     private LinkedList<String> allQueuedSongs;
+    private List<String> allSongs;
 
     public SongsListPresenter(SongsListContract.View view) {
         this.view = view;
@@ -147,6 +152,27 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
+    public void displaySongsThatMatchQuery(String query) {
+        Pattern searchPattern = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
+
+        List<String> matchingSongs = new ArrayList<>();
+
+        for(String song: allSongs){
+            if(searchPattern.matcher(song).find()){
+                matchingSongs.add(song);
+            }
+        }
+
+        view.updateListWithSongs(matchingSongs);
+        // TODO: 10-Sep-18 upon clicking the song in the view, tell the presenter to display all songs again.
+    }
+
+    @Override
+    public void displayAllSongs() {
+        view.updateListWithSongs(allSongs);
+    }
+
+    @Override
     public void update(ServerResponse response) {
         switch (response.getServerCode()) {
             case SERVER_SONG_LIST:
@@ -176,7 +202,8 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     private void handleSongListResponse(ServerResponse response) {
-        view.updateListWithSongs(response.getAllSongs());
+        allSongs = response.getAllSongs();
+        view.updateListWithSongs(allSongs);
     }
 
     private void handleQueueListResponse(ServerResponse response) {
