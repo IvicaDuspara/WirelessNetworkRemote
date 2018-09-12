@@ -1,8 +1,5 @@
 package makazas.imint.hr.meteorremote.ui.songslist;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -67,7 +64,6 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-
         initSearchView(menu.findItem(R.id.menu_search));
 
         return true;
@@ -145,7 +141,6 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
             str = new SpannableString(nowPlayingLabel + ": " + songName);
             str.setSpan(new StyleSpan(Typeface.BOLD), 0, nowPlayingLabel.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        Log.d(Constants.LOG_TAG, str.toString());
         runOnUiThread(() -> tvNowPlayingSong.setText(str));
     }
 

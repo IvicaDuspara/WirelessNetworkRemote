@@ -70,14 +70,12 @@ public class MainActivity extends AppCompatActivity {
         new AsyncTask<String, String, Void>() {
             @Override
             protected void onPreExecute() {
-                super.onPreExecute();
                 runOnUiThread(() -> setProgressBarVisible(true));
                 runOnUiThread(() -> setButtonEnabled(false));
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
                 runOnUiThread(() -> setProgressBarVisible(false));
                 runOnUiThread(() -> setButtonEnabled(true));
             }

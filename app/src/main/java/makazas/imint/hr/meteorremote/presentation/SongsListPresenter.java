@@ -1,6 +1,5 @@
 package makazas.imint.hr.meteorremote.presentation;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -9,11 +8,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import makazas.imint.hr.meteorremote.networking.SocketSingleton;
@@ -48,27 +47,6 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         this.clientSongIndex = -1;
     }
 
-    @Override
-    @SuppressLint("StaticFieldLeak")
-    public void connectToServer() {
-        new AsyncTask<String, String, Void>() {
-            @Override
-            protected Void doInBackground(String... strings) {
-                try {
-                    clientSocket = SocketSingleton.getInstance().getSocket();
-                    clientSocketReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    clientSocketWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-                    sendMacAddressToServer();
-                    startListeningForServerResponses();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        }.execute();
-    }
-
     private void sendMacAddressToServer() throws IOException {
         clientSocketWriter.write(ClientCode.CLIENT_MAC_ADDRESS.toString());
         clientSocketWriter.newLine();
@@ -85,29 +63,6 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         listenerThread.start();
     }
 
-    @Override
-    @SuppressLint("StaticFieldLeak")
-    public void sendSongToServer(String song) {
-        setQueuedSongIfNotExists(song);
-        new AsyncTask<String, String, Void>() {
-            @Override
-            protected Void doInBackground(String... strings) {
-                try {
-                    clientSocketWriter.write(ClientCode.CLIENT_QUEUE.toString());
-                    clientSocketWriter.newLine();
-                    clientSocketWriter.write(NetworkUtil.getMacAddress());
-                    clientSocketWriter.newLine();
-                    clientSocketWriter.write(strings[0]);
-                    clientSocketWriter.newLine();
-                    clientSocketWriter.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        }.execute(song);
-    }
-
     private void setQueuedSongIfNotExists(String songName) {
         if (clientQueuedSong == null) {
             allQueuedSongs.addLast(songName);
@@ -117,54 +72,18 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
-    @SuppressLint("StaticFieldLeak")
-    public void disconnectFromServer() {
-        new AsyncTask<String, String, Void>() {
-            @Override
-            protected Void doInBackground(String... strings) {
-                if (clientSocketWriter != null) {
-                    try {
-                        clientSocketWriter.write(ClientCode.CLIENT_DISCONNECT.toString());
-                        clientSocketWriter.newLine();
-                        clientSocketWriter.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if(clientSocket != null){
-                    try {
-                        SocketSingleton.getInstance().closeSocket();
-                        clientSocketReader.close();
-                        clientSocketWriter.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                listenerThread.setRunning(false);
-
-                NetworkUtil.logIfClosed(clientSocket, clientSocketReader, clientSocketWriter);
-
-                return null;
-            }
-        }.execute();
-    }
-
-    @Override
     public void displaySongsThatMatchQuery(String query) {
         Pattern searchPattern = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
 
         List<String> matchingSongs = new ArrayList<>();
 
-        for(String song: allSongs){
-            if(searchPattern.matcher(song).find()){
+        for (String song : allSongs) {
+            if (searchPattern.matcher(song).find()) {
                 matchingSongs.add(song);
             }
         }
 
         view.updateListWithSongs(matchingSongs);
-        // TODO: 10-Sep-18 upon clicking the song in the view, tell the presenter to display all songs again.
     }
 
     @Override
@@ -275,6 +194,125 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
             //if his song index isn't -1, we just update the song's position.
 
             view.setQueuedSongPosition(clientSongIndex);
+        }
+    }
+
+    @Override
+    public void connectToServer() {
+        new ConnectToServerTask(this).execute();
+    }
+
+    @Override
+    public void sendSongToServer(String song) {
+        setQueuedSongIfNotExists(song);
+        new SendSongToServerTask(this).execute(song);
+    }
+
+    @Override
+    public void disconnectFromServer() {
+        new DisconnectFromServerTask(this).execute();
+    }
+
+    private static class ConnectToServerTask extends AsyncTask<String, String, Void> {
+
+        private WeakReference<SongsListPresenter> presenterReference;
+
+        ConnectToServerTask(SongsListPresenter presenter) {
+            presenterReference = new WeakReference<>(presenter);
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            SongsListPresenter presenter = presenterReference.get();
+
+            if (presenter == null) return null;
+
+            try {
+                presenter.clientSocket = SocketSingleton.getInstance().getSocket();
+                presenter.clientSocketReader = new BufferedReader(new InputStreamReader(presenter.clientSocket.getInputStream()));
+                presenter.clientSocketWriter = new BufferedWriter(new OutputStreamWriter(presenter.clientSocket.getOutputStream()));
+
+                presenter.sendMacAddressToServer();
+                presenter.startListeningForServerResponses();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Log.d(Constants.LOG_TAG, "Connect to server task stopped");
+            return null;
+        }
+    }
+
+    private static class SendSongToServerTask extends AsyncTask<String, String, Void> {
+        private WeakReference<SongsListPresenter> presenterReference;
+
+        SendSongToServerTask(SongsListPresenter presenter) {
+            presenterReference = new WeakReference<>(presenter);
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            SongsListPresenter presenter = presenterReference.get();
+
+            if (presenter == null) return null;
+
+            try {
+                presenter.clientSocketWriter.write(ClientCode.CLIENT_QUEUE.toString());
+                presenter.clientSocketWriter.newLine();
+                presenter.clientSocketWriter.write(NetworkUtil.getMacAddress());
+                presenter.clientSocketWriter.newLine();
+                presenter.clientSocketWriter.write(strings[0]);
+                presenter.clientSocketWriter.newLine();
+                presenter.clientSocketWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Log.d(Constants.LOG_TAG, "Send song to server task stopped");
+            return null;
+        }
+    }
+
+    private static class DisconnectFromServerTask extends AsyncTask<String, String, Void> {
+
+        private WeakReference<SongsListPresenter> presenterReference;
+
+        DisconnectFromServerTask(SongsListPresenter presenter) {
+            presenterReference = new WeakReference<>(presenter);
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            SongsListPresenter presenter = presenterReference.get();
+
+            if (presenter == null) return null;
+
+            if (presenter.clientSocketWriter != null) {
+                try {
+                    presenter.clientSocketWriter.write(ClientCode.CLIENT_DISCONNECT.toString());
+                    presenter.clientSocketWriter.newLine();
+                    presenter.clientSocketWriter.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (presenter.clientSocket != null) {
+                try {
+                    SocketSingleton.getInstance().closeSocket();
+                    presenter.clientSocketReader.close();
+                    presenter.clientSocketWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            presenter.listenerThread.setRunning(false);
+
+            NetworkUtil.logIfClosed(presenter.clientSocket, presenter.clientSocketReader, presenter.clientSocketWriter);
+            Log.d(Constants.LOG_TAG, "Disconnect from server task stopped");
+
+            return null;
         }
     }
 }
