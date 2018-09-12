@@ -22,5 +22,7 @@ public interface SongsListContract {
 
         void displaySongsThatMatchQuery(String query);
         void displayAllSongs();
+
+        void setListenerThreadRunning(boolean isRunning);
     }
 }

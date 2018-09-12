@@ -38,7 +38,8 @@ public class ServerResponse {
                 positionInQueue = Integer.parseInt(information[2]);
                 break;
             case SERVER_NOW_PLAYING:
-                nowPlayingSong = information[1];
+                // TODO: 12-Sep-18 remove this when main app is updated to not send nowplaying if there is nothing playing
+                nowPlayingSong = information.length == 1 ? null : information[1];
                 break;
             case SERVER_SONG_LIST:
                 addAllInformationLinesToList(allSongs, information, 1);

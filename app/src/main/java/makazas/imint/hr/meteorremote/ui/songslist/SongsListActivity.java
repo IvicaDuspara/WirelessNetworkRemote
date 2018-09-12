@@ -1,6 +1,11 @@
 package makazas.imint.hr.meteorremote.ui.songslist;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -24,12 +29,11 @@ import butterknife.ButterKnife;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.presentation.SongsListPresenter;
+import makazas.imint.hr.meteorremote.util.NetworkUtil;
 import makazas.imint.hr.meteorremote.util.StringFormattingUtil;
 import makazas.imint.hr.meteorremote.util.ToastUtil;
 
 public class SongsListActivity extends AppCompatActivity implements SongsListContract.View {
-
-    private SongsListContract.Presenter presenter;
 
     @BindView(R.id.rv_songslist_songs)
     RecyclerView rvSongs;
@@ -43,19 +47,36 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     @BindView(R.id.tv_songslist_queuedposition)
     TextView tvQueuedSongPosition;
 
+    private SongsListContract.Presenter presenter;
+
     private SongsListAdapter songsAdapter;
+
+    private BroadcastReceiver networkChangedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_songs_list);
         ButterKnife.bind(this);
-
         Log.d(Constants.LOG_TAG, "in oncreate");
+
+        networkChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!NetworkUtil.isDeviceConnectedToWifi(context)){
+                    //if network changed and the device is no longer connected to WiFi,
+                    //finish the activity(calls onDestroy and shuts down the listening thread,
+                    //since we can't disconnect from the server with no internet access.)
+
+                    finish();
+                }
+            }
+        };
+        registerReceiver(networkChangedReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         presenter = new SongsListPresenter(this);
 
-        songsAdapter = new SongsListAdapter(getSongClickListener());
+        songsAdapter = new SongsListAdapter(songName -> presenter.sendSongToServer(songName));
         initRecyclerView();
 
         presenter.connectToServer();
@@ -111,17 +132,21 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     @Override
     protected void onDestroy() {
         Log.d(Constants.LOG_TAG, "in ondestroy");
-        presenter.disconnectFromServer();
-        super.onDestroy();
-    }
+        if(networkChangedReceiver != null){
+            unregisterReceiver(networkChangedReceiver);
+        }
 
-    private SongClickListener getSongClickListener() {
-        return new SongClickListener() {
-            @Override
-            public void onClick(String songName) {
-                presenter.sendSongToServer(songName);
-            }
-        };
+        if(NetworkUtil.isDeviceConnectedToWifi(this)){
+            //cant notify server we disconnected if there's no internet.
+
+            presenter.disconnectFromServer();
+        } else {
+            //if no internet, then just shut down the listener thread and exit.
+
+            presenter.setListenerThreadRunning(false);
+        }
+
+        super.onDestroy();
     }
 
     @Override
@@ -190,18 +215,6 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         rvSongs.setLayoutManager(new LinearLayoutManager(this));
 
         rvSongs.setAdapter(songsAdapter);
-    }
-
-    private void testViews(){
-        List<String> test = new ArrayList<>();
-        test.add("Sinan Sakic - Trezan mi je napravio dijete");
-        test.add("Black Eyed Peas - Boom Boom Pow");
-        test.add("BONES - AsTheAncientHawaiiansUsedToSay");
-        updateListWithSongs(test);
-
-        setNowPlayingSong("Ivica Duspara - Sto i jedan dokaz da je zemlja ravna");
-        setQueuedSongPosition(7);
-        setQueuedSong("Marko Duspara - Zasto je moj brat u krivu");
     }
 
     private String getStringResource(int resId){

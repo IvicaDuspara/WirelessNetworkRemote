@@ -92,6 +92,11 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
+    public void setListenerThreadRunning(boolean isRunning) {
+        listenerThread.setRunning(isRunning);
+    }
+
+    @Override
     public void update(ServerResponse response) {
         switch (response.getServerCode()) {
             case SERVER_SONG_LIST:
@@ -313,7 +318,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
             }
 
             if(presenter.listenerThread != null) {
-                presenter.listenerThread.setRunning(false);
+                presenter.setListenerThreadRunning(false);
             }
 
             NetworkUtil.logIfClosed(presenter.clientSocket, presenter.clientSocketReader, presenter.clientSocketWriter);
