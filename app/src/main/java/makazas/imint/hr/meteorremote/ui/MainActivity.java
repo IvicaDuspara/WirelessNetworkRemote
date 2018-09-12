@@ -1,16 +1,16 @@
 package makazas.imint.hr.meteorremote.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import java.net.InetAddress;
+import java.lang.ref.WeakReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,42 +65,15 @@ public class MainActivity extends AppCompatActivity {
         tryInitializingSocket(ipAddress, port);
     }
 
-    @SuppressLint("StaticFieldLeak")
     private void tryInitializingSocket(String ipAddress, String port){
-        new AsyncTask<String, String, Void>() {
-            @Override
-            protected void onPreExecute() {
-                runOnUiThread(() -> setProgressBarVisible(true));
-                runOnUiThread(() -> setButtonEnabled(false));
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                runOnUiThread(() -> setProgressBarVisible(false));
-                runOnUiThread(() -> setButtonEnabled(true));
-            }
-
-            @Override
-            protected Void doInBackground(String... strings) {
-                if(SocketSingleton.getInstance().initializeSocket(strings[0], strings[1])){
-                    //only save input to prefs if it's correct
-                    saveInputToSharedPrefs();
-                    startActivity(new Intent(MainActivity.this, SongsListActivity.class));
-                } else {
-                    runOnUiThread(
-                            () -> ToastUtil.showLongToastWithMessage(MainActivity.this, getStringResource(R.string.string_cannotconnect))
-                    );
-                }
-                return null;
-            }
-        }.execute(ipAddress, port);
+        new TryInitializingSocketTask(this).execute(ipAddress, port);
     }
 
     private void setProgressBarVisible(boolean isVisible){
         pbConnecting.setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
-    private void setButtonEnabled(boolean isEnabled){
+    private void setConnectButtonEnabled(boolean isEnabled){
         btnConnect.setClickable(isEnabled);
         btnConnect.setEnabled(isEnabled);
         btnConnect.setBackgroundColor(
@@ -125,4 +98,58 @@ public class MainActivity extends AppCompatActivity {
     private int getColorResource(int colorId){
         return getResources().getColor(colorId);
     }
+
+    private static class TryInitializingSocketTask extends AsyncTask<String, String, Void>{
+
+        private WeakReference<MainActivity> activityReference;
+        private boolean isSocketInitialized;
+
+        TryInitializingSocketTask(MainActivity context){
+            activityReference = new WeakReference<>(context);
+            isSocketInitialized = false;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            MainActivity activity = activityReference.get();
+
+            if(activity == null) return;
+
+            activity.setProgressBarVisible(true);
+            activity.setConnectButtonEnabled(false);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            MainActivity activity = activityReference.get();
+
+            if(activity == null) return;
+
+            activity.setProgressBarVisible(false);
+            activity.setConnectButtonEnabled(true);
+
+            if(!isSocketInitialized){
+                ToastUtil.showLongToastWithMessage(activity, activity.getStringResource(R.string.string_cannotconnect));
+            }
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            MainActivity activity = activityReference.get();
+
+            if(activity == null) return null;
+
+            if(SocketSingleton.getInstance().initializeSocket(strings[0], strings[1])){
+                //only save input to prefs if it's correct
+                isSocketInitialized = true;
+                activity.saveInputToSharedPrefs();
+                activity.startActivity(new Intent(activity, SongsListActivity.class));
+            }
+
+            Log.d(Constants.LOG_TAG, "Try initializing socket task stopped");
+
+            return null;
+        }
+    }
+
 }

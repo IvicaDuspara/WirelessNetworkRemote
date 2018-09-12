@@ -167,6 +167,14 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     }
 
     @Override
+    public void showAlreadyQueuedSongToast(String songName) {
+        ToastUtil.showShortToastWithMessage(
+                this,
+                String.format(Locale.getDefault(), "%s \"%s\"", getStringResource(R.string.string_alreadyqueued), songName)
+        );
+    }
+
+    @Override
     public void clearQueuedSongView() {
         runOnUiThread(() -> tvQueuedSong.setText(null));
         runOnUiThread(() -> tvQueuedSongPosition.setText(null));

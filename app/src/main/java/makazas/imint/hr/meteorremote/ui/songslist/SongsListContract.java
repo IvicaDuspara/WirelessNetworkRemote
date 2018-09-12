@@ -10,6 +10,7 @@ public interface SongsListContract {
         void setQueuedSong(String songName);
         void setQueuedSongPosition(int position);
         void showSuccessfulQueuedSongToast(String songName);
+        void showAlreadyQueuedSongToast(String songName);
         void clearQueuedSongView();
     }
 

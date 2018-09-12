@@ -204,6 +204,11 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
 
     @Override
     public void sendSongToServer(String song) {
+        if(song.equals(clientQueuedSong)){
+            view.showAlreadyQueuedSongToast(clientQueuedSong);
+            return;
+        }
+
         setQueuedSongIfNotExists(song);
         new SendSongToServerTask(this).execute(song);
     }

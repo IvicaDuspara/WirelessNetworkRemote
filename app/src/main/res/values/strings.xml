@@ -13,5 +13,6 @@
     <string name="string_cannotconnect">Could not connect to given IP address and port number.</string>
     <string name="string_searchhint">Search songs…</string>
     <string name="string_menu_search">Search</string>
+    <string name="string_alreadyqueued">You already queued</string>
 
 </resources>
