@@ -149,9 +149,9 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
             clientQueuedSong = response.getQueuedSong();
             allQueuedSongs.set(clientSongIndex, response.getQueuedSong());
 
+            view.showSuccessfulQueuedSongToast(clientQueuedSong);
             view.setQueuedSong(clientQueuedSong);
             view.setQueuedSongPosition(clientSongIndex);
-            view.showSuccessfulQueuedSongToast(clientQueuedSong);
 
         } else if (response.getPositionInQueue() == allQueuedSongs.size()) {
             //if the currently enqueued song's position is greater than the size of all queued songs
@@ -312,7 +312,9 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
                 }
             }
 
-            presenter.listenerThread.setRunning(false);
+            if(presenter.listenerThread != null) {
+                presenter.listenerThread.setRunning(false);
+            }
 
             NetworkUtil.logIfClosed(presenter.clientSocket, presenter.clientSocketReader, presenter.clientSocketWriter);
             Log.d(Constants.LOG_TAG, "Disconnect from server task stopped");

@@ -9,9 +9,10 @@ public interface SongsListContract {
         void setNowPlayingSong(String songName);
         void setQueuedSong(String songName);
         void setQueuedSongPosition(int position);
+        void clearQueuedSongView();
+
         void showSuccessfulQueuedSongToast(String songName);
         void showAlreadyQueuedSongToast(String songName);
-        void clearQueuedSongView();
     }
 
     interface Presenter {
@@ -20,7 +21,6 @@ public interface SongsListContract {
         void disconnectFromServer();
 
         void displaySongsThatMatchQuery(String query);
-
         void displayAllSongs();
     }
 }

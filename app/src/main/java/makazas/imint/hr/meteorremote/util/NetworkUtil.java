@@ -1,5 +1,8 @@
 package makazas.imint.hr.meteorremote.util;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -41,7 +44,7 @@ public class NetworkUtil {
         return "02:00:00:00:00:00";
     }
 
-    public static boolean isValidIpAddress(String ipAddress){
+    public static boolean isValidLocalIpAddress(String ipAddress){
         if(ipAddress == null || ipAddress.isEmpty()) return false;
 
         String[] parts = ipAddress.split("\\.");
@@ -49,12 +52,16 @@ public class NetworkUtil {
         //if the IP address doesn't have 4 parts, its not a valid IPv4 address.
         if(parts.length != 4) return false;
 
-        for(String part: parts){
+        if(!(parts[0].equals("192") && parts[1].equals("168"))){
+            return false;
+        }
+
+        for(int i = 2; i < 4; i++){
             int num;
             try{
                 //if a part is not a number, its not a valid IPv4 address.
-                num = Integer.parseInt(part);
-            } catch(NumberFormatException e){
+                num = Integer.parseInt(parts[i]);
+            } catch (NumberFormatException e){
                 return false;
             }
 
@@ -102,5 +109,19 @@ public class NetworkUtil {
                         ", writer is closed: " + writerClosed +
                         ", reader is closed: " + readerClosed
         );
+    }
+
+    public static boolean isDeviceOnline(Context context){
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    public static boolean isDeviceConnectedToWifi(Context context){
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return isDeviceOnline(context) && (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI);
     }
 }

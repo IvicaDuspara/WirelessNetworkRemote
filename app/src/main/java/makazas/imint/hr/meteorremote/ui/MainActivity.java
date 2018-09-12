@@ -52,13 +52,23 @@ public class MainActivity extends AppCompatActivity {
         String ipAddress = etIpAddress.getText().toString();
         String port = etPort.getText().toString();
 
-        if (!NetworkUtil.isValidIpAddress(ipAddress)) {
+        if (!NetworkUtil.isValidLocalIpAddress(ipAddress)) {
             etIpAddress.setError(getStringResource(R.string.string_ipaddress_error));
             return;
         }
 
         if (!NetworkUtil.isValidPort(port)) {
             etPort.setError(getStringResource(R.string.string_port_error));
+            return;
+        }
+
+        if(!NetworkUtil.isDeviceOnline(this)){
+            ToastUtil.showLongToastWithMessage(this, getStringResource(R.string.string_notconnected_tointernet));
+            return;
+        }
+
+        if(!NetworkUtil.isDeviceConnectedToWifi(this)){
+            ToastUtil.showLongToastWithMessage(this, getStringResource(R.string.string_needwificonnection));
             return;
         }
 

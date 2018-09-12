@@ -1,10 +1,13 @@
 package makazas.imint.hr.meteorremote.networking;
 
 import android.os.NetworkOnMainThreadException;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+
+import makazas.imint.hr.meteorremote.util.Constants;
 
 /**
  * A thread-safe singleton that provides a unique instance of a {@link Socket}.<br>
@@ -49,10 +52,12 @@ public class SocketSingleton {
             try {
                 socket = new Socket(InetAddress.getByName(ipAddress), Integer.parseInt(port));
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.d(Constants.LOG_TAG, "Socket wasn't initialized");
                 return false;
             }
         }
+
+        Log.d(Constants.LOG_TAG, "Socket is null: " + (socket == null));
 
         //if no exceptions were thrown during construction, the socket is initialized successfully.
         return true;

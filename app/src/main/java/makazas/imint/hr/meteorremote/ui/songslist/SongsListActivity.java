@@ -133,7 +133,7 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     public void setNowPlayingSong(String songName) {
         SpannableString str;
         if(songName == null || songName.isEmpty()){
-            //nothing is playing so the view can display nothing.
+            //nothing is playing so the view displays nothing
             str = new SpannableString("");
         } else {
             //using spannable string allows bolding one part of the string and not the other.
@@ -153,7 +153,7 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     public void setQueuedSongPosition(int position) {
         String toDisplay = String.format(
                 Locale.getDefault(),
-                "%s(%s):", getResources().getString(R.string.string_queued), StringFormattingUtil.attachOrdinalSuffix(position + 1)
+                "%s(%s): ", getResources().getString(R.string.string_queued), StringFormattingUtil.attachOrdinalSuffix(position + 1)
         );
         runOnUiThread(() -> tvQueuedSongPosition.setText(toDisplay));
     }
