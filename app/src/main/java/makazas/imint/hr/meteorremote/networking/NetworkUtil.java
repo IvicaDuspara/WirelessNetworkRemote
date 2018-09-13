@@ -1,4 +1,4 @@
-package makazas.imint.hr.meteorremote.util;
+package makazas.imint.hr.meteorremote.networking;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -14,6 +14,8 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import makazas.imint.hr.meteorremote.util.Constants;
 
 public class NetworkUtil {
 

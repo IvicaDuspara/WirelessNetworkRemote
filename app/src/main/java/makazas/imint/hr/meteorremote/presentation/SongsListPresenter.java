@@ -22,7 +22,7 @@ import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseListenerThread;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
 import makazas.imint.hr.meteorremote.util.Constants;
-import makazas.imint.hr.meteorremote.util.NetworkUtil;
+import makazas.imint.hr.meteorremote.networking.NetworkUtil;
 
 // TODO: 08-Sep-18 documentation
 
@@ -247,7 +247,6 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             Log.d(Constants.LOG_TAG, "Connect to server task stopped");
             return null;
         }

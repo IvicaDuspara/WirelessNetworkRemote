@@ -19,7 +19,7 @@ import makazas.imint.hr.meteorremote.networking.SocketSingleton;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListActivity;
-import makazas.imint.hr.meteorremote.util.NetworkUtil;
+import makazas.imint.hr.meteorremote.networking.NetworkUtil;
 import makazas.imint.hr.meteorremote.util.SharedPrefsUtil;
 import makazas.imint.hr.meteorremote.util.ToastUtil;
 

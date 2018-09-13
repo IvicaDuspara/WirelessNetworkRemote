@@ -20,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +28,7 @@ import butterknife.ButterKnife;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.R;
 import makazas.imint.hr.meteorremote.presentation.SongsListPresenter;
-import makazas.imint.hr.meteorremote.util.NetworkUtil;
+import makazas.imint.hr.meteorremote.networking.NetworkUtil;
 import makazas.imint.hr.meteorremote.util.StringFormattingUtil;
 import makazas.imint.hr.meteorremote.util.ToastUtil;
 
