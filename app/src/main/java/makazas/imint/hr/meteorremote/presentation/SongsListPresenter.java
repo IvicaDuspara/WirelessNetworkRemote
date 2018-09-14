@@ -44,6 +44,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     public SongsListPresenter(SongsListContract.View view) {
         this.view = view;
         this.allQueuedSongs = new LinkedList<>();
+        this.allSongs = new ArrayList<>();
         this.clientSongIndex = -1;
     }
 

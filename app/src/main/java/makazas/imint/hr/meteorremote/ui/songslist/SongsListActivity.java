@@ -18,6 +18,8 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -46,6 +48,11 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     @BindView(R.id.tv_songslist_queuedposition)
     TextView tvQueuedSongPosition;
 
+    @BindView(R.id.pb_songslist_loadingsongs)
+    ProgressBar pbLoadingSongs;
+
+    private boolean isSongsListInitialized;
+
     private SongsListContract.Presenter presenter;
 
     private SongsListAdapter songsAdapter;
@@ -58,6 +65,12 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         setContentView(R.layout.activity_songs_list);
         ButterKnife.bind(this);
         Log.d(Constants.LOG_TAG, "in oncreate");
+
+        presenter = new SongsListPresenter(this);
+
+        //display the progress bar to let the user know his songs list is being loaded.
+        pbLoadingSongs.setVisibility(View.VISIBLE);
+        isSongsListInitialized = false;
 
         networkChangedReceiver = new BroadcastReceiver() {
             @Override
@@ -73,11 +86,13 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         };
         registerReceiver(networkChangedReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        presenter = new SongsListPresenter(this);
-
+        //construct the songs list adapter and make it send a song to server each time a song is clicked.
         songsAdapter = new SongsListAdapter(songName -> presenter.sendSongToServer(songName));
+
+        //now that the adapter is constructed, initialize our recycler view.
         initRecyclerView();
 
+        //finally, connect to server to receive server responses and display our data.
         presenter.connectToServer();
     }
 
@@ -85,13 +100,19 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         initSearchView(menu.findItem(R.id.menu_search));
-
         return true;
     }
 
-    private void initSearchView(MenuItem menuSearchItem){
-        //define menu item behavior
-        menuSearchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+    @Override
+    //this method is called each time the menu gets reconstructed.
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        setMenuItemEnabled(menu.findItem(R.id.menu_search), isSongsListInitialized);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void initSearchView(MenuItem searchViewItem){
+        //define menu item specific behavior
+        searchViewItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
                 //when overriding these methods, we must return true so the item expands.
@@ -106,8 +127,8 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
             }
         });
 
-        //define specific searchview attributes
-        SearchView searchView = (SearchView) menuSearchItem.getActionView();
+        //define searchview specific attributes
+        SearchView searchView = (SearchView) searchViewItem.getActionView();
         searchView.setQueryHint(getStringResource(R.string.string_searchhint));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -151,6 +172,17 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
     @Override
     public void updateListWithSongs(List<String> songs) {
         runOnUiThread(() -> songsAdapter.updateSongs(songs));
+
+        //Sometimes the menu gets created after receiving the songs list which is why I can't just
+        //enable and disable the SearchView. Rather, I have to invalidate the whole menu and reconstruct
+        //it once the songs list is received. This is because our SearchView is part of the menu.
+        if(!isSongsListInitialized){
+            isSongsListInitialized = true;
+            runOnUiThread(() -> invalidateOptionsMenu());
+            runOnUiThread(() -> pbLoadingSongs.setVisibility(View.INVISIBLE));
+
+            Log.d(Constants.LOG_TAG, "invalidated options menu");
+        }
     }
 
     @Override
@@ -165,7 +197,7 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
             str = new SpannableString(nowPlayingLabel + ": " + songName);
             str.setSpan(new StyleSpan(Typeface.BOLD), 0, nowPlayingLabel.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        runOnUiThread(() -> tvNowPlayingSong.setText(str));
+        runOnUiThread(() ->tvNowPlayingSong.setText(str));
     }
 
     @Override
@@ -180,6 +212,12 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
                 "%s(%s): ", getResources().getString(R.string.string_queued), StringFormattingUtil.attachOrdinalSuffix(position + 1)
         );
         runOnUiThread(() -> tvQueuedSongPosition.setText(toDisplay));
+    }
+
+    @Override
+    public void clearQueuedSongView() {
+        runOnUiThread(() -> tvQueuedSong.setText(null));
+        runOnUiThread(() -> tvQueuedSongPosition.setText(null));
     }
 
     @Override
@@ -198,12 +236,6 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
         );
     }
 
-    @Override
-    public void clearQueuedSongView() {
-        runOnUiThread(() -> tvQueuedSong.setText(null));
-        runOnUiThread(() -> tvQueuedSongPosition.setText(null));
-    }
-
     private void initRecyclerView() {
         rvSongs.setHasFixedSize(true);
 
@@ -218,5 +250,10 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
 
     private String getStringResource(int resId){
         return getResources().getString(resId);
+    }
+
+    private void setMenuItemEnabled(MenuItem item, boolean isEnabled){
+        item.setEnabled(isEnabled);
+        item.getIcon().setAlpha(isEnabled ? 255 : 130);
     }
 }
