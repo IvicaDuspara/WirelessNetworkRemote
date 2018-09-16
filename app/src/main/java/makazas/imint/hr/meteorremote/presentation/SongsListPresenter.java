@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -240,8 +241,8 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
 
             try {
                 presenter.clientSocket = SocketSingleton.getInstance().getSocket();
-                presenter.clientSocketReader = new BufferedReader(new InputStreamReader(presenter.clientSocket.getInputStream()));
-                presenter.clientSocketWriter = new BufferedWriter(new OutputStreamWriter(presenter.clientSocket.getOutputStream()));
+                presenter.clientSocketReader = new BufferedReader(new InputStreamReader(presenter.clientSocket.getInputStream(), Charset.forName("UTF-8")));
+                presenter.clientSocketWriter = new BufferedWriter(new OutputStreamWriter(presenter.clientSocket.getOutputStream(), Charset.forName("UTF-8")));
 
                 presenter.sendMacAddressToServer();
                 presenter.startListeningForServerResponses();
