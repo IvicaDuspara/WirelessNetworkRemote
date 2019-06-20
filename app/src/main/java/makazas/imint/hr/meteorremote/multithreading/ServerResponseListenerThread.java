@@ -5,20 +5,8 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import makazas.imint.hr.meteorremote.model.ServerCode;
-import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.util.Constants;
 
-/**
- * Observable thread that actively listens for a {@link ServerResponse}.<br>
- * If no {@link BufferedReader} is attached, no server responses can be read.<br>
- * Only after attaching the reader via {@link ServerResponseListenerThread#setBufferedReader(BufferedReader)}
- * can the thread actually read server responses.<br>
- * <p>
- * <br>When the thread receives a server response, it first connects all lines from the {@link BufferedReader}
- * and creates a new {@link ServerResponse}. It then notifies all attached {@link ServerResponseChangedObserver}s
- * of the received server response.
- */
 public class ServerResponseListenerThread extends ObservableThread {
 
     private BufferedReader bufferedReader;
@@ -53,7 +41,7 @@ public class ServerResponseListenerThread extends ObservableThread {
                     }
 
                     Log.d(Constants.LOG_TAG, serverResponse);
-                    notifyObserversOfChange(new ServerResponse(serverResponse));
+                    notifyObserversOfChange(serverResponse);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -62,19 +50,14 @@ public class ServerResponseListenerThread extends ObservableThread {
         Log.d(Constants.LOG_TAG, "listening thread stopped");
     }
 
-    /**
-     * @return connected lines from {@link ServerResponseListenerThread#bufferedReader} separated by newline
-     * up until {@link ServerCode#SERVER_BROADCAST_ENDED} is read. There is no trailing newline.
-     * @throws IOException  if BufferedReader throws an IOException
-     * @throws NullPointerException if the reader reads a null line, typically meaning the connection between
-     * server and client has been severed(lost internet connection and such)
-     */
     private String connectAllLinesFromBufferedReader() throws IOException, NullPointerException {
+        // TODO: 21-Jun-19 just fuckin put it in a string array to begin with you dumbo 
+
         StringBuilder everything = new StringBuilder();
         String line;
 
-        while (!(line = bufferedReader.readLine()).equals(ServerCode.SERVER_BROADCAST_ENDED.toString())) {
-            everything.append(line).append("\n");
+        while (!(line = bufferedReader.readLine()).equals(Constants.SERVER_BROADCAST_ENDED_CODE)) {
+            everything.append(line).append(Constants.SERVER_RESPONSE_SEPARATOR);
         }
 
         String allLines = everything.toString();

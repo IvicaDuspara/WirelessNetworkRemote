@@ -1,5 +1,7 @@
 package makazas.imint.hr.meteorremote.ui.songslist;
 
+import android.content.res.AssetManager;
+
 import java.util.List;
 
 public interface SongsListContract {
@@ -13,6 +15,8 @@ public interface SongsListContract {
 
         void showSuccessfulQueuedSongToast(String songName);
         void showAlreadyQueuedSongToast(String songName);
+
+        AssetManager getAssetManager();
     }
 
     interface Presenter {
@@ -24,5 +28,12 @@ public interface SongsListContract {
         void displayAllSongs();
 
         void setListenerThreadRunning(boolean isRunning);
+
+        void handleSongsListResponse(String[] songs);
+        void handleQueuedSongsListResponse(String[] queuedSongs);
+        void handleNowPlayingResponse(String[] responseBody);
+        void handleEnqueuedResponse(String[] responseBody);
+        void handleMyQueuedSongResponse(String[] responseBody);
+        void handleMoveUpResponse(String[] responseBody);
     }
 }

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
@@ -94,6 +95,11 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
 
         //finally, connect to server to receive server responses and display our data.
         presenter.connectToServer();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -234,6 +240,11 @@ public class SongsListActivity extends AppCompatActivity implements SongsListCon
                 this,
                 String.format(Locale.getDefault(), "%s \"%s\"", getStringResource(R.string.string_alreadyqueued), songName)
         );
+    }
+
+    @Override
+    public AssetManager getAssetManager() {
+        return getAssets();
     }
 
     private void initRecyclerView() {

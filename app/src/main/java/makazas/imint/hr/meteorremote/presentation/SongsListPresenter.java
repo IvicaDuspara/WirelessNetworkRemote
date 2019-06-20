@@ -12,20 +12,19 @@ import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import makazas.imint.hr.meteorremote.factory.ResponseFactory;
 import makazas.imint.hr.meteorremote.networking.SocketSingleton;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseChangedObserver;
-import makazas.imint.hr.meteorremote.model.ClientCode;
-import makazas.imint.hr.meteorremote.model.ServerResponse;
 import makazas.imint.hr.meteorremote.multithreading.ServerResponseListenerThread;
+import makazas.imint.hr.meteorremote.serverresponse.IResponse;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
 import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.networking.NetworkUtil;
-
-// TODO: 08-Sep-18 documentation
 
 public class SongsListPresenter implements SongsListContract.Presenter, ServerResponseChangedObserver {
 
@@ -36,6 +35,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     private BufferedReader clientSocketReader;
 
     private ServerResponseListenerThread listenerThread;
+    private ResponseFactory responseFactory;
 
     private int clientSongIndex;
     private String clientQueuedSong;
@@ -47,10 +47,11 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
         this.allQueuedSongs = new LinkedList<>();
         this.allSongs = new ArrayList<>();
         this.clientSongIndex = -1;
+        this.responseFactory = new ResponseFactory(this, view.getAssetManager());
     }
 
     private void sendMacAddressToServer() throws IOException {
-        clientSocketWriter.write(ClientCode.CLIENT_MAC_ADDRESS.toString());
+        clientSocketWriter.write(Constants.CLIENT_MAC_ADDRESS_CODE);
         clientSocketWriter.newLine();
         clientSocketWriter.write(NetworkUtil.getMacAddress());
         clientSocketWriter.newLine();
@@ -99,82 +100,74 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
-    public void update(ServerResponse response) {
-        switch (response.getServerCode()) {
-            case SERVER_SONG_LIST:
-                handleSongListResponse(response);
-                break;
-
-            case SERVER_QUEUE_LIST:
-                handleQueueListResponse(response);
-                break;
-
-            case SERVER_NOW_PLAYING:
-                handleNowPlayingResponse(response);
-                break;
-
-            case SERVER_MY_QUEUED_SONG:
-                handleMyQueuedSongResponse(response);
-                break;
-
-            case SERVER_ENQUEUED:
-                handleEnqueuedResponse(response);
-                break;
-
-            case SERVER_MOVE_UP:
-                handleMoveUpResponse(response);
-                break;
-        }
+    public void update(String responseString) {
+        IResponse response = responseFactory.createResponse(responseString);
+        response.executeStrategy(this);
     }
 
-    private void handleSongListResponse(ServerResponse response) {
-        allSongs = response.getAllSongs();
+    @Override
+    public void handleSongsListResponse(String[] songs) {
+        allSongs = Arrays.asList(songs);
         view.updateListWithSongs(allSongs);
     }
 
-    private void handleQueueListResponse(ServerResponse response) {
-        allQueuedSongs.addAll(response.getQueuedSongs());
+    @Override
+    public void handleQueuedSongsListResponse(String[] queuedSongs) {
+        allQueuedSongs.addAll(Arrays.asList(queuedSongs));
     }
 
-    private void handleNowPlayingResponse(ServerResponse response) {
-        view.setNowPlayingSong(response.getNowPlayingSong());
+    public void handleNowPlayingResponse(String[] responseBody) {
+        String nowPlaying = null;
+        if(responseBody.length != 0){
+            // TODO: 12-Sep-18 remove this when main app is updated to not send nowplaying if there is nothing playing
+            // ^ todo left from last year, figure it out
+            nowPlaying = responseBody[0];
+        }
+
+        view.setNowPlayingSong(nowPlaying);
     }
 
-    private void handleMyQueuedSongResponse(ServerResponse response) {
-        clientQueuedSong = response.getQueuedSong();
-        clientSongIndex = response.getPositionInQueue();
+    @Override
+    public void handleMyQueuedSongResponse(String[] responseBody) {
+        clientQueuedSong = responseBody[0];
+        clientSongIndex = Integer.parseInt(responseBody[1]);
 
         view.setQueuedSong(clientQueuedSong);
         view.setQueuedSongPosition(clientSongIndex);
     }
 
-    private void handleEnqueuedResponse(ServerResponse response) {
-        if (response.getPositionInQueue() == clientSongIndex) {
+    @Override
+    public void handleEnqueuedResponse(String[] responseBody) {
+        String queuedSong = responseBody[0];
+        int posInQueue = Integer.parseInt(responseBody[1]);
+
+        if (posInQueue == clientSongIndex) {
             //if the currently enqueued song's position equals clients queued song index,
             //this means he swapped his song.
 
-            clientQueuedSong = response.getQueuedSong();
-            allQueuedSongs.set(clientSongIndex, response.getQueuedSong());
+            clientQueuedSong = queuedSong;
+            allQueuedSongs.set(clientSongIndex, queuedSong);
 
             view.showSuccessfulQueuedSongToast(clientQueuedSong);
             view.setQueuedSong(clientQueuedSong);
             view.setQueuedSongPosition(clientSongIndex);
 
-        } else if (response.getPositionInQueue() == allQueuedSongs.size()) {
+        } else if (posInQueue == allQueuedSongs.size()) {
             //if the currently enqueued song's position is greater than the size of all queued songs
             //this means ANOTHER client enqueued a song. therefore we update our list of queued songs.
 
-            allQueuedSongs.addLast(response.getQueuedSong());
+            allQueuedSongs.addLast(queuedSong);
 
         } else {
             //if the currently enqueued song's position isn't greater than the size of all queued songs
             //and its index isn't equal to this client's song position, another user swapped his song.
 
-            allQueuedSongs.set(response.getPositionInQueue(), response.getQueuedSong());
+            allQueuedSongs.set(posInQueue, queuedSong);
         }
     }
 
-    private void handleMoveUpResponse(ServerResponse response) {
+    @Override
+    public void handleMoveUpResponse(String[] responseBody) {
         if (clientSongIndex == -1) {
             //if the client hasn't queued anything yet, his queued song index is -1,
             //denoting the song doesn't exist in the list of queued songs.
@@ -268,7 +261,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
             if (presenter == null) return null;
 
             try {
-                presenter.clientSocketWriter.write(ClientCode.CLIENT_QUEUE.toString());
+                presenter.clientSocketWriter.write(Constants.CLIENT_QUEUE_CODE);
                 presenter.clientSocketWriter.newLine();
                 presenter.clientSocketWriter.write(NetworkUtil.getMacAddress());
                 presenter.clientSocketWriter.newLine();
@@ -300,7 +293,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
 
             if (presenter.clientSocketWriter != null) {
                 try {
-                    presenter.clientSocketWriter.write(ClientCode.CLIENT_DISCONNECT.toString());
+                    presenter.clientSocketWriter.write(Constants.CLIENT_DISCONNECT_CODE);
                     presenter.clientSocketWriter.newLine();
                     presenter.clientSocketWriter.flush();
                 } catch (IOException e) {

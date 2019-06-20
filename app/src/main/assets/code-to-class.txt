@@ -1,0 +1,6 @@
+SERVER_SONG_LIST,SongsListResponse
+SERVER_QUEUE_LIST,QueuedSongsResponse
+SERVER_NOW_PLAYING,NowPlayingResponse
+SERVER_ENQUEUED,EnqueuedSongResponse
+SERVER_MY_QUEUED_SONG,MyQueuedSongResponse
+SERVER_MOVE_UP,MoveUpResponse
