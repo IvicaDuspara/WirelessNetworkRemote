@@ -1,12 +1,14 @@
 package makazas.imint.hr.meteorremote.serverresponse;
 
+import java.util.List;
+
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
 
 public class MoveUpResponse implements IResponse {
 
-    private String[] responseBody;
+    private List<String> responseBody;
 
-    public MoveUpResponse(String[] responseBody){
+    public MoveUpResponse(List<String> responseBody){
         this.responseBody = responseBody;
     }
 

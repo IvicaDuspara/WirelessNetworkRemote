@@ -1,10 +1,13 @@
 package makazas.imint.hr.meteorremote.factory;
 
 import android.content.res.AssetManager;
+import android.util.Log;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import makazas.imint.hr.meteorremote.serverresponse.IResponse;
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
@@ -12,7 +15,7 @@ import makazas.imint.hr.meteorremote.util.Constants;
 import makazas.imint.hr.meteorremote.util.FileUtil;
 
 public class ResponseFactory {
-    private static final String RESPONSES_PATH = "makazas.imint.hr.meteorremote.";
+    private static final String RESPONSES_PATH = "makazas.imint.hr.meteorremote.serverresponse.";
     private static final String CODE_CLASS_MAP_PATH = "code-to-class.txt";
     private static final String PAIR_DELIMITER = "\n";
     private static final String CODE_CLASS_DELIMITER = ",";
@@ -25,6 +28,7 @@ public class ResponseFactory {
     public ResponseFactory(SongsListContract.Presenter presenter, AssetManager assetManager){
         this.presenter = presenter;
         this.assetManager = assetManager;
+        this.codeToClassName = new HashMap<>();
         loadCodeToClassMap();
     }
 
@@ -45,18 +49,16 @@ public class ResponseFactory {
         }
     }
 
-    public IResponse createResponse(String responseString){
-        String[] responseLines = responseString.split(Constants.SERVER_RESPONSE_SEPARATOR);
-
-        String responseCode = responseLines[0];
-        String[] responseBody = Arrays.copyOfRange(responseLines, 1, responseLines.length);
+    public IResponse createResponse(List<String> response){
+        String responseCode = response.get(0);
+        List<String> responseBody = response.subList(1, response.size());
 
         IResponse result = null;
 
         // jesus christ
         try {
             Class<IResponse> responseClass = (Class<IResponse>) Class.forName(RESPONSES_PATH + codeToClassName.get(responseCode));
-            result = responseClass.getDeclaredConstructor(String[].class).newInstance(responseBody);
+            result = responseClass.getDeclaredConstructor(List.class).newInstance(responseBody);
         } catch (Exception e){
             e.printStackTrace();
         }

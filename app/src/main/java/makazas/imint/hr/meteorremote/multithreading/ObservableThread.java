@@ -21,7 +21,7 @@ public abstract class ObservableThread extends Thread {
         observers.remove(observer);
     }
 
-    public void notifyObserversOfChange(String serverResponse){
+    public void notifyObserversOfChange(List<String> serverResponse){
         for(ServerResponseChangedObserver o: observers){
             o.update(serverResponse);
         }

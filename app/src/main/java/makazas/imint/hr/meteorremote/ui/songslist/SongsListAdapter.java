@@ -2,6 +2,7 @@ package makazas.imint.hr.meteorremote.ui.songslist;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import makazas.imint.hr.meteorremote.R;
+import makazas.imint.hr.meteorremote.util.Constants;
 
 public class SongsListAdapter extends RecyclerView.Adapter<SongsListAdapter.SongViewHolder>{
 

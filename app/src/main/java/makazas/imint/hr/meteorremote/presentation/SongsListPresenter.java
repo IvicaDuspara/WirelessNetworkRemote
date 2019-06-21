@@ -100,46 +100,46 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
-    public void update(String responseString) {
-        IResponse response = responseFactory.createResponse(responseString);
+    public void update(List<String> r) {
+        IResponse response = responseFactory.createResponse(r);
         response.executeStrategy(this);
     }
 
     @Override
-    public void handleSongsListResponse(String[] songs) {
-        allSongs = Arrays.asList(songs);
+    public void handleSongsListResponse(List<String> songs) {
+        allSongs = songs;
         view.updateListWithSongs(allSongs);
     }
 
     @Override
-    public void handleQueuedSongsListResponse(String[] queuedSongs) {
-        allQueuedSongs.addAll(Arrays.asList(queuedSongs));
+    public void handleQueuedSongsListResponse(List<String> queuedSongs) {
+        allQueuedSongs.addAll(queuedSongs);
     }
 
-    public void handleNowPlayingResponse(String[] responseBody) {
+    public void handleNowPlayingResponse(List<String> responseBody) {
         String nowPlaying = null;
-        if(responseBody.length != 0){
+        if(responseBody.size() != 0){
             // TODO: 12-Sep-18 remove this when main app is updated to not send nowplaying if there is nothing playing
             // ^ todo left from last year, figure it out
-            nowPlaying = responseBody[0];
+            nowPlaying = responseBody.get(0);
         }
 
         view.setNowPlayingSong(nowPlaying);
     }
 
     @Override
-    public void handleMyQueuedSongResponse(String[] responseBody) {
-        clientQueuedSong = responseBody[0];
-        clientSongIndex = Integer.parseInt(responseBody[1]);
+    public void handleMyQueuedSongResponse(List<String> responseBody) {
+        clientQueuedSong = responseBody.get(0);
+        clientSongIndex = Integer.parseInt(responseBody.get(1));
 
         view.setQueuedSong(clientQueuedSong);
         view.setQueuedSongPosition(clientSongIndex);
     }
 
     @Override
-    public void handleEnqueuedResponse(String[] responseBody) {
-        String queuedSong = responseBody[0];
-        int posInQueue = Integer.parseInt(responseBody[1]);
+    public void handleEnqueuedResponse(List<String> responseBody) {
+        String queuedSong = responseBody.get(0);
+        int posInQueue = Integer.parseInt(responseBody.get(1));
 
         if (posInQueue == clientSongIndex) {
             //if the currently enqueued song's position equals clients queued song index,
@@ -167,7 +167,7 @@ public class SongsListPresenter implements SongsListContract.Presenter, ServerRe
     }
 
     @Override
-    public void handleMoveUpResponse(String[] responseBody) {
+    public void handleMoveUpResponse(List<String> responseBody) {
         if (clientSongIndex == -1) {
             //if the client hasn't queued anything yet, his queued song index is -1,
             //denoting the song doesn't exist in the list of queued songs.

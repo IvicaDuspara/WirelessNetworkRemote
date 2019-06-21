@@ -1,12 +1,14 @@
 package makazas.imint.hr.meteorremote.serverresponse;
 
+import java.util.List;
+
 import makazas.imint.hr.meteorremote.ui.songslist.SongsListContract;
 
 public class EnqueuedSongResponse implements IResponse {
 
-    private String[] responseBody;
+    private List<String> responseBody;
 
-    public EnqueuedSongResponse(String[] responseBody){
+    public EnqueuedSongResponse(List<String> responseBody){
         this.responseBody = responseBody;
     }
 

@@ -29,11 +29,11 @@ public interface SongsListContract {
 
         void setListenerThreadRunning(boolean isRunning);
 
-        void handleSongsListResponse(String[] songs);
-        void handleQueuedSongsListResponse(String[] queuedSongs);
-        void handleNowPlayingResponse(String[] responseBody);
-        void handleEnqueuedResponse(String[] responseBody);
-        void handleMyQueuedSongResponse(String[] responseBody);
-        void handleMoveUpResponse(String[] responseBody);
+        void handleSongsListResponse(List<String> songs);
+        void handleQueuedSongsListResponse(List<String> queuedSongs);
+        void handleNowPlayingResponse(List<String> responseBody);
+        void handleEnqueuedResponse(List<String> responseBody);
+        void handleMyQueuedSongResponse(List<String> responseBody);
+        void handleMoveUpResponse(List<String> responseBody);
     }
 }

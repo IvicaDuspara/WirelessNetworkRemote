@@ -4,6 +4,8 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import makazas.imint.hr.meteorremote.util.Constants;
 
@@ -23,13 +25,17 @@ public class ServerResponseListenerThread extends ObservableThread {
 
     @Override
     public void run() {
+        Log.d(Constants.LOG_TAG, "listener thread in run, reader null:" + (bufferedReader == null));
+
         setRunning(true);
         while (isRunning) {
             if (bufferedReader != null) {
+                Log.d(Constants.LOG_TAG, "made it past check");
                 try {
-                    String serverResponse;
+                    List<String> serverResponse;
                     try {
-                        serverResponse = connectAllLinesFromBufferedReader();
+                        serverResponse = responseToList();
+                        Log.d(Constants.LOG_TAG, serverResponse.toString());
                     } catch (NullPointerException e) {
                         //when internet connection is lost, but reader isn't closed yet
                         //and reads null, just continue until the thread gets shut down
@@ -40,7 +46,6 @@ public class ServerResponseListenerThread extends ObservableThread {
                         continue;
                     }
 
-                    Log.d(Constants.LOG_TAG, serverResponse);
                     notifyObserversOfChange(serverResponse);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -50,19 +55,14 @@ public class ServerResponseListenerThread extends ObservableThread {
         Log.d(Constants.LOG_TAG, "listening thread stopped");
     }
 
-    private String connectAllLinesFromBufferedReader() throws IOException, NullPointerException {
-        // TODO: 21-Jun-19 just fuckin put it in a string array to begin with you dumbo 
-
-        StringBuilder everything = new StringBuilder();
+    private List<String> responseToList() throws IOException, NullPointerException {
+        List<String> response = new ArrayList<>();
         String line;
 
-        while (!(line = bufferedReader.readLine()).equals(Constants.SERVER_BROADCAST_ENDED_CODE)) {
-            everything.append(line).append(Constants.SERVER_RESPONSE_SEPARATOR);
+        while (!(line = bufferedReader.readLine()).equals(Constants.SERVER_BROADCAST_ENDED_CODE)){
+            response.add(line);
         }
 
-        String allLines = everything.toString();
-
-        //removes trailing \n
-        return allLines.substring(0, allLines.length() - 1);
+        return response;
     }
 }
